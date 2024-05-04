@@ -6,6 +6,7 @@ from mtkclient.gui.toolkit import trap_exc_during_debug, asyncThread, FDialog
 
 sys.excepthook = trap_exc_during_debug
 
+
 class WriteFlashWindow(QObject):
     enableButtonsSignal = Signal()
     disableButtonsSignal = Signal()
@@ -22,7 +23,6 @@ class WriteFlashWindow(QObject):
     def writePartDone(self):
         self.sendToLogSignal.emit("write done!")
 
-
     def selectFiles(self):
         self.folder = self.fdialog.opendir(self.tr("Select input directory"))
         if self.folder:
@@ -30,8 +30,8 @@ class WriteFlashWindow(QObject):
                 checkbox, lineedit, button = self.parent.writepartitionCheckboxes[partition]['box']
                 for root, dirs, files in os.walk(self.folder):
                     for file in files:
-                        if file in [partition+".bin",partition+".img"]:
-                            lineedit.setText(os.path.join(root,file))
+                        if file in [partition + ".bin", partition + ".img"]:
+                            lineedit.setText(os.path.join(root, file))
                             lineedit.setDisabled(False)
                             checkbox.setChecked(True)
                             break
@@ -40,14 +40,14 @@ class WriteFlashWindow(QObject):
     def writePartition(self):
         self.disableButtonsSignal.emit()
         self.parent.Status["rpmb"] = False
-        thread = asyncThread(parent=self, n=0, function=self.writePartitionAsync,parameters=[])
+        thread = asyncThread(parent=self, n=0, function=self.writePartitionAsync, parameters=[])
         thread.sendToLogSignal.connect(self.sendToLog)
         thread.sendUpdateSignal.connect(self.parent.updateState)
         thread.sendToProgressSignal.connect(self.parent.updateProgress)
         thread.start()
 
     def openFile(self, partition, checkbox, lineedit):
-        fname = self.fdialog.open(partition+".bin")
+        fname = self.fdialog.open(partition + ".bin")
         if fname is None:
             checkbox.setChecked(False)
             lineedit.setText("")
@@ -79,7 +79,8 @@ class WriteFlashWindow(QObject):
         for partition in self.parent.writepartitionCheckboxes:
             checkbox, lineedit, button = self.parent.writepartitionCheckboxes[partition]['box']
             if checkbox.isChecked():
-                totalsize += min(self.parent.writepartitionCheckboxes[partition]['size'], os.stat(lineedit.text()).st_size)
+                totalsize += min(self.parent.writepartitionCheckboxes[partition]['size'],
+                                 os.stat(lineedit.text()).st_size)
         self.parent.Status["totalsize"] = totalsize
 
         for partition in self.parent.writepartitionCheckboxes:
@@ -87,7 +88,7 @@ class WriteFlashWindow(QObject):
             if checkbox.isChecked():
                 size = min(self.parent.writepartitionCheckboxes[partition]['size'], os.stat(lineedit.text()).st_size)
                 self.parent.Status["allPartitions"][partition] = {"size": size,
-                                                               "done": False}
+                                                                  "done": False}
         for partition in self.parent.writepartitionCheckboxes:
             checkbox, lineedit, button = self.parent.writepartitionCheckboxes[partition]['box']
             if checkbox.isChecked():
@@ -95,7 +96,7 @@ class WriteFlashWindow(QObject):
                 variables.partitionname = partition
                 variables.filename = lineedit.text()
                 variables.parttype = "user"
-                size = min(self.parent.writepartitionCheckboxes[partition]['size'],os.stat(variables.filename).st_size)
+                size = min(self.parent.writepartitionCheckboxes[partition]['size'], os.stat(variables.filename).st_size)
                 self.parent.Status["currentPartitionSize"] = size
                 self.parent.Status["currentPartition"] = partition
                 self.parent.Status["currentPartitionFile"] = variables.filename
@@ -108,7 +109,7 @@ class WriteFlashWindow(QObject):
         self.enableButtonsSignal.emit()
 
     def writeFlash(self, parttype):
-        self.writeFile = self.fdialog.open(parttype+".bin")
+        self.writeFile = self.fdialog.open(parttype + ".bin")
         self.parent.Status["rpmb"] = False
         if parttype == "user":
             self.flashsize = self.mtkClass.daloader.daconfig.flashsize
@@ -163,5 +164,3 @@ class WriteFlashWindow(QObject):
         self.parent.Status["done"] = True
         thread.wait()
         self.enableButtonsSignal.emit()
-
-

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # (c) B.Kerler 2018-2023
 import argparse
-from edlclient.Library.Connection.usblib import *
+from mtkclient.Library.Connection.usblib import Scsi
 
 
 def main():

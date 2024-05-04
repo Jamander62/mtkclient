@@ -14,6 +14,7 @@ cmds = {
     "rf": "Read whole flash to file",
     "rs": "Read sectors starting at start_sector to filename",
     "ro": "Read flash starting at offset to filename",
+    "fs": "Mount the device as a FUSE filesystem",
     "w": "Write partition from filename",
     "wf": "Write flash from filename",
     "wl": "Write partitions from directory path to flash",
@@ -36,7 +37,7 @@ cmds = {
     "stage": "Run stage2 payload via boot rom mode (kamakiri)",
     "plstage": "Run stage2 payload via preloader mode (send_da)",
     "da": "Run da xflash/legacy special commands",
-    "script" : "Run multiple commands using text script"
+    "script": "Run multiple commands using text script"
 }
 
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=info)
     subparsers = parser.add_subparsers(dest="cmd",
                                        help='Valid commands are: \n' +
-                                            'printgpt, gpt, r, rl, rf, rs, w, wf, wl, e, es, footer, reset, \n' +
+                                            'printgpt, gpt, r, rl, rf, fs, rs, w, wf, wl, e, es, footer, reset, \n' +
                                             'dumpbrom, dumpsram, dumppreloader, payload, crash, brute, gettargetconfig, \n' +
                                             'peek, stage, plstage, da, script\n')
 
@@ -67,6 +68,7 @@ if __name__ == '__main__':
     parser_rf = subparsers.add_parser("rf", help="Read whole flash to file")
     parser_rs = subparsers.add_parser("rs", help="Read sectors starting at start_sector to filename")
     parser_ro = subparsers.add_parser("ro", help="Read flash starting at offset to filename")
+    parser_fs = subparsers.add_parser("fs", help="Mount the device as a FUSE filesystem")
     parser_w = subparsers.add_parser("w", help="Write partition from filename")
     parser_wf = subparsers.add_parser("wf", help="Write flash from filename")
     parser_wl = subparsers.add_parser("wl", help="Write partitions from directory path to flash")
@@ -185,9 +187,8 @@ if __name__ == '__main__':
     parser_script.add_argument('--da_addr', help='Set a specific da payload addr')
     parser_script.add_argument('--brom_addr', help='Set a specific brom payload addr')
     parser_script.add_argument('--gpt_file', help='Use a gpt file instead of trying to read gpt from flash')
-    parser_script.add_argument('--ptype',
-                                 help='Set the payload type ("amonet","kamakiri","kamakiri2","carbonara" kamakiri2/da used by ' +
-                                      'default)')
+    parser_script.add_argument('--ptype', help='Set the payload type ("amonet","kamakiri","kamakiri2",'
+                                               '"carbonara" kamakiri2/da used by default)')
     parser_script.add_argument('--preloader', help='Set the preloader filename for dram config')
     parser_script.add_argument('--crash', help='Enforce crash if device is in pl mode to enter brom mode')
     parser_script.add_argument('--socid', help='Read Soc ID')
@@ -405,6 +406,9 @@ if __name__ == '__main__':
     parser_ro.add_argument('--crash', help='Enforce crash if device is in pl mode to enter brom mode')
     parser_ro.add_argument('--auth', type=str, help="Use auth file (auth_sv5.auth)")
     parser_ro.add_argument('--cert', type=str, help="Use cert file")
+
+    parser_fs.add_argument('mountpoint', help='Directory to mount the FUSE filesystem in')
+    parser_fs.add_argument('--rw', help='Mount the filesystem as writeable', default=False, action='store_true')
 
     parser_w.add_argument('partitionname', help='Partition to write (separate by comma for multiple partitions)')
     parser_w.add_argument('filename', help='Filename for writing (separate by comma for multiple filenames)')

@@ -5,13 +5,15 @@ from binascii import hexlify
 from mtkclient.Library.utils import LogBase
 from mtkclient.Library.settings import hwparam
 from mtkclient.config.brom_config import chipconfig, damodes, hwconfig
+
 try:
     from PySide6.QtCore import QObject
 except ImportError:
-    class QObject():
+    class QObject:
         def tr(self, arg):
             return
     pass
+
 
 class Mtk_Config(metaclass=LogBase):
     def __init__(self, loglevel=logging.INFO, gui=None, guiprogress=None, update_status_text=None):
@@ -76,6 +78,10 @@ class Mtk_Config(metaclass=LogBase):
             self.__logger.setLevel(logging.DEBUG)
         else:
             self.__logger.setLevel(logging.INFO)
+        self.reconnect = True
+        self.uartloglevel = 2
+        self.hwver = 0xca00
+        self.swver = 0
 
     def set_peek(self, peek):
         self.peek = peek
@@ -100,13 +106,13 @@ class Mtk_Config(metaclass=LogBase):
         return self.cid
 
     def set_cid(self, cid):
-        self.hwparam.writesetting("cid",cid.hex())
+        self.hwparam.writesetting("cid", cid.hex())
         self.cid = cid.hex()
 
-    def set_hwcode(self,hwcode):
+    def set_hwcode(self, hwcode):
         self.hwparam.writesetting("hwcode", hex(hwcode))
 
-    def set_meid(self,meid):
+    def set_meid(self, meid):
         self.hwparam = hwparam(meid, self.hwparam_path)
         self.meid = meid
         self.hwparam.writesetting("meid", hexlify(meid).decode('utf-8'))
@@ -118,14 +124,14 @@ class Mtk_Config(metaclass=LogBase):
             idx = self.preloader.find(b"\x4D\x4D\x4D\x01\x30")
             if idx != -1:
                 self.otp = self.preloader[idx + 0xC:idx + 0xC + 32]
-                self.hwparam.writesetting("otp",hexlify(self.otp).decode('utf-8'))
+                self.hwparam.writesetting("otp", hexlify(self.otp).decode('utf-8'))
         if self.otp is None:
             self.otp = 32 * b"\x00"
         return self.otp
 
-    def set_otp(self,otp):
+    def set_otp(self, otp):
         self.otp = otp
-        self.hwparam.writesetting("otp",hexlify(otp).decode('utf-8'))
+        self.hwparam.writesetting("otp", hexlify(otp).decode('utf-8'))
 
     def get_meid(self):
         if self.meid is None:
@@ -133,12 +139,12 @@ class Mtk_Config(metaclass=LogBase):
                 if self.chipconfig.meid_addr is not None:
                     self.meid = self.peek(self.chipconfig.meid_addr, 0x10)
                 self.meid = self.peek(0x1008ec, 0x10)
-                #self.set_meid(self.meid)
+                # self.set_meid(self.meid)
         return self.meid
 
-    def set_socid(self,socid):
+    def set_socid(self, socid):
         self.socid = socid
-        self.hwparam.writesetting("socid",hexlify(socid).decode('utf-8'))
+        self.hwparam.writesetting("socid", hexlify(socid).decode('utf-8'))
 
     def get_socid(self):
         if self.socid is None:
@@ -228,7 +234,8 @@ class Mtk_Config(metaclass=LogBase):
                 bmtflag = 1
                 bmtblockcount = 0xA8
                 bmtpartsize = 0x1500000
-        elif hwcode in [0x6570, 0x8167, 0x6580, 0x6735, 0x6753, 0x6755, 0x6752, 0x6595, 0x6795, 0x6767, 0x6797, 0x8163, 0x8127]:
+        elif hwcode in [0x6570, 0x8167, 0x6580, 0x6735, 0x6753, 0x6755, 0x6752, 0x6595, 0x6795, 0x6767, 0x6797, 0x8163,
+                        0x8127]:
             bmtflag = 1
             bmtpartsize = 0
         elif hwcode in [0x6571]:

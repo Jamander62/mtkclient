@@ -1,12 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # (c) B.Kerler 2018-2023 GPLv3 License
-import logging, os
+import logging
+import os
 from struct import pack, unpack
 from mtkclient.Library.utils import LogBase
 from mtkclient.Library.cryptutils import cryptutils
 
-CustomSeed = bytes.fromhex("00be13bb95e218b53d07a089cb935255294f70d4088f3930350bc636cc49c9025ece7a62c292853ef55b23a6ef7b7464c7f3f2a74ae919416d6b4d9c1d6809655dd82d43d65999cf041a386e1c0f1e58849d8ed09ef07e6a9f0d7d3b8dad6cbae4668a2fd53776c3d26f88b0bf617c8112b8b1a871d322d9513491e07396e1638090055f4b8b9aa2f4ec24ebaeb917e81f468783ea771b278614cd5779a3ca50df5cc5af0edc332e2b69b2b42154bcfffd0af13ce5a467abb7fb107fe794f928da44b6db7215aa53bd0398e3403126fad1f7de2a56edfe474c5a06f8dd9bc0b3422c45a9a132e64e48fcacf63f787560c4c89701d7c125118c20a5ee820c3a16")
+CustomSeed = bytes.fromhex("00be13bb95e218b53d07a089cb935255294f70d4088f3930350bc636cc49c9025ece7a62c292853ef55b23a6e" +
+                           "f7b7464c7f3f2a74ae919416d6b4d9c1d6809655dd82d43d65999cf041a386e1c0f1e58849d8ed09ef07e6a9f" +
+                           "0d7d3b8dad6cbae4668a2fd53776c3d26f88b0bf617c8112b8b1a871d322d9513491e07396e1638090055f4b8" +
+                           "b9aa2f4ec24ebaeb917e81f468783ea771b278614cd5779a3ca50df5cc5af0edc332e2b69b2b42154bcfffd0a" +
+                           "f13ce5a467abb7fb107fe794f928da44b6db7215aa53bd0398e3403126fad1f7de2a56edfe474c5a06f8dd9bc" +
+                           "0b3422c45a9a132e64e48fcacf63f787560c4c89701d7c125118c20a5ee820c3a16")
 
 
 # SEJ = Security Engine for JTAG protection
@@ -140,7 +146,6 @@ class sej(metaclass=LogBase):
         0xDE377A83
     ]
 
-
     g_HACC_CFG_1 = [
         0x9ED40400, 0x00E884A1, 0xE3F083BD, 0x2F4E6D8A,
         0xFF838E5C, 0xE940A0E3, 0x8D4DECC6, 0x45FC0989
@@ -218,7 +223,8 @@ class sej(metaclass=LogBase):
         self.write32(0x10007F00, 0)
         tv = self.read32(0x10007400) & 0xFFFFFFFF
         self.write32(0x10007400, tv | (1 << (self.uffs(0xF0000000) - 1)))
-        tv_0 = self.read32(0x10007400) & 0xF0FFFFFF
+        # tv_0 =
+        self.read32(0x10007400) & 0xF0FFFFFF
         self.write32(0x10007400, tv | (2 << (self.uffs(0xF0000000) - 1)))
 
     def sej_set_mode(self, mode):
@@ -407,18 +413,18 @@ class sej(metaclass=LogBase):
 
     def SST_Init(self, attr, iv, keylen=0x10, mparam=5, key=None):
         self.reg.HACC_SECINIT0 = 1
-        if keylen==0x10 or mparam&1!=0 or attr&1!=0:
+        if keylen == 0x10 or mparam & 1 != 0 or attr & 1 != 0:
             acon_setting = 0
-        elif keylen==0x18:
+        elif keylen == 0x18:
             acon_setting = 0x10
-        elif keylen==0x20:
+        elif keylen == 0x20:
             acon_setting = 0x20
         else:
             acon_setting = 0x0
-        if attr&4==0:
+        if attr & 4 == 0:
             print("SEJ_3DES_HW_SetKey")
         if iv is not None:
-            acon_setting |= self.HACC_AES_CBC #0
+            acon_setting |= self.HACC_AES_CBC  # 0
         self.reg.HACC_ACON = acon_setting
 
         self.reg.HACC_AKEY0 = 0
@@ -429,7 +435,7 @@ class sej(metaclass=LogBase):
         self.reg.HACC_AKEY5 = 0
         self.reg.HACC_AKEY6 = 0
         self.reg.HACC_AKEY7 = 0
-        if mparam&1 != 0:
+        if mparam & 1 != 0:
             self.reg.HACC_ACONK = 0x10
         else:
             self.reg.HACC_AKEY0 = key[0]
@@ -440,7 +446,7 @@ class sej(metaclass=LogBase):
             self.reg.HACC_AKEY5 = key[5]
             self.reg.HACC_AKEY6 = key[6]
             self.reg.HACC_AKEY7 = key[7]
-        if attr&2!=0:
+        if attr & 2 != 0:
             self.reg.HACC_ACON2 = self.HACC_AES_CLR
             self.reg.HACC_ACFG0 = iv[0]  # g_AC_CFG
             self.reg.HACC_ACFG1 = iv[1]
@@ -466,12 +472,12 @@ class sej(metaclass=LogBase):
     def SST_Secure_Algo_With_Level(self, buf, encrypt=True, aes_top_legacy=True):
         seed = (CustomSeed[2] << 16) | (CustomSeed[1] << 8) | CustomSeed[0] | (CustomSeed[3] << 24)
         iv = [seed, (~seed) & 0xFFFFFFFF, (((seed >> 16) | (seed << 16)) & 0xFFFFFFFF),
-                    (~((seed >> 16) | (seed << 16)) & 0xFFFFFFFF)]
+              (~((seed >> 16) | (seed << 16)) & 0xFFFFFFFF)]
         key = symkey()
         key.key = None
         key.key_len = 0x10
-        meta_key_len = 0x10
-        key.mode = 1      # CBC
+        # meta_key_len = 0x10
+        key.mode = 1  # CBC
         key.iv = iv
         if aes_top_legacy:
             sej_param = 3
@@ -496,11 +502,11 @@ class sej(metaclass=LogBase):
             attr = 0x5B
             self.SEJ_AES_HW_Init(attr, key, sej_param)
             for pos in range(3):
-                src = b"".join([int.to_bytes(val,4,'little') for val in self.g_CFG_RANDOM_PATTERN])
+                src = b"".join([int.to_bytes(val, 4, 'little') for val in self.g_CFG_RANDOM_PATTERN])
                 buf2 = self.SEJ_AES_HW_Internal(src, encrypt=False, attr=attr, sej_param=sej_param)
             attr = attr & 0xFFFFFFFA | 4
         else:
-            self.SST_Init(attr=attr,iv=iv,keylen=key.key_len,mparam=sej_param,key=key.key)
+            self.SST_Init(attr=attr, iv=iv, keylen=key.key_len, mparam=sej_param, key=key.key)
         buf2 = self.SEJ_AES_HW_Internal(buf, encrypt=encrypt, attr=attr, sej_param=sej_param, legacy=False)
         return buf2
 
@@ -691,7 +697,7 @@ class sej(metaclass=LogBase):
         if encrypt:
             data = self.xor_data(bytearray(data))
         self.info("HACC init")
-        self.SEJ_V3_Init(ben=encrypt,iv=self.g_HACC_CFG_1,legacy=True)
+        self.SEJ_V3_Init(ben=encrypt, iv=self.g_HACC_CFG_1, legacy=True)
         self.info("HACC run")
         dec = self.SEJ_Run(data)
         self.info("HACC terminate")
@@ -792,7 +798,7 @@ class sej(metaclass=LogBase):
             self.sej_set_otp(otp)
         seed = (CustomSeed[2] << 16) | (CustomSeed[1] << 8) | CustomSeed[0] | (CustomSeed[3] << 24)
         iv = [seed, (~seed) & 0xFFFFFFFF, (((seed >> 16) | (seed << 16)) & 0xFFFFFFFF),
-                    (~((seed >> 16) | (seed << 16)) & 0xFFFFFFFF)]
+              (~((seed >> 16) | (seed << 16)) & 0xFFFFFFFF)]
         self.info("HACC init")
         self.SEJ_V3_Init(ben=encrypt, iv=iv)
         self.info("HACC run")
@@ -803,8 +809,8 @@ class sej(metaclass=LogBase):
 
 
 if __name__ == "__main__":
-    CustomSeed = int.to_bytes(0x12345678,4,'little')
+    CustomSeed = int.to_bytes(0x12345678, 4, 'little')
     seed = (CustomSeed[2] << 16) | (CustomSeed[1] << 8) | CustomSeed[0] | (CustomSeed[3] << 24)
     iv = [seed, (~seed) & 0xFFFFFFFF, (((seed >> 16) | (seed << 16)) & 0xFFFFFFFF),
           (~((seed >> 16) | (seed << 16)) & 0xFFFFFFFF)]
-    print(b"".join(int.to_bytes(val,4,'little') for val in iv).hex())
+    print(b"".join(int.to_bytes(val, 4, 'little') for val in iv).hex())

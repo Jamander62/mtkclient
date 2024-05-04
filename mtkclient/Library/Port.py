@@ -11,6 +11,7 @@ from mtkclient.Library.utils import LogBase, logsetup
 from mtkclient.Library.Connection.usblib import usb_class
 from mtkclient.Library.Connection.seriallib import serial_class
 
+
 class Port(metaclass=LogBase):
     class deviceclass:
         vid = 0
@@ -20,7 +21,7 @@ class Port(metaclass=LogBase):
             self.vid = vid
             self.pid = pid
 
-    def __init__(self, mtk, portconfig, serialportname:str=None, loglevel=logging.INFO):
+    def __init__(self, mtk, portconfig, serialportname: str = None, loglevel=logging.INFO):
         self.__logger = logsetup(self, self.__logger, loglevel, mtk.config.gui)
         self.config = mtk.config
         self.mtk = mtk
@@ -52,17 +53,17 @@ class Port(metaclass=LogBase):
         try:  # Support for serial port where EP_OUT is unknown
             if hasattr(self.cdc, 'EP_OUT'):
                 EP_OUT = self.cdc.EP_OUT.write
-                maxinsize = self.cdc.EP_IN.wMaxPacketSize
+                # maxinsize = self.cdc.EP_IN.wMaxPacketSize
             else:
                 EP_OUT = self.cdc.write
-        except:
+        except Exception:
             EP_OUT = self.cdc.write
         try:
             if hasattr(self.cdc, 'EP_IN'):
                 EP_IN = self.cdc.EP_IN.read
             else:
                 EP_IN = self.cdc.read
-        except:
+        except Exception:
             EP_IN = self.cdc.read
 
         i = 0
@@ -71,7 +72,7 @@ class Port(metaclass=LogBase):
         try:
             while i < length:
                 if EP_OUT(int.to_bytes(startcmd[i], 1, 'little')):
-                    v = EP_IN(1, timeout=20) # Do not wait 1 sec, bootloader is only active for 0.3 sec.
+                    v = EP_IN(1, timeout=20)  # Do not wait 1 sec, bootloader is only active for 0.3 sec.
                     if len(v) == 1 and v[0] == ~(startcmd[i]) & 0xFF:
                         i += 1
                     else:
@@ -92,15 +93,15 @@ class Port(metaclass=LogBase):
                 if maxtries is not None and counter == maxtries:
                     break
                 counter += 1
-                #self.cdc.connected = self.cdc.connect()
+                # self.cdc.connected = self.cdc.connect()
                 if self.cdc.connected and self.run_serial_handshake():
                     self.info("Handshake successful.")
                     return True
                 else:
                     if loop == 5:
                         sys.stdout.write('\n')
-                        self.info("Hint:\n\nPower off the phone before connecting.\n" + \
-                                  "For brom mode, press and hold vol up, vol dwn, or all hw buttons and " + \
+                        self.info("Hint:\n\nPower off the phone before connecting.\n" +
+                                  "For brom mode, press and hold vol up, vol dwn, or all hw buttons and " +
                                   "connect usb.\n" +
                                   "For preloader mode, don't press any hw button and connect usb.\n"
                                   "If it is already connected and on, hold power for 10 seconds to reset.\n")
@@ -113,7 +114,6 @@ class Port(metaclass=LogBase):
                     loop += 1
                     time.sleep(0.1)
                     sys.stdout.flush()
-
 
             except Exception as serr:
                 print("Handshake: " + str(serr))
@@ -160,8 +160,8 @@ class Port(metaclass=LogBase):
                 else:
                     if loop == 5:
                         sys.stdout.write('\n')
-                        self.info("Hint:\n\nPower off the phone before connecting.\n" + \
-                                  "For brom mode, press and hold vol up, vol dwn, or all hw buttons and " + \
+                        self.info("Hint:\n\nPower off the phone before connecting.\n" +
+                                  "For brom mode, press and hold vol up, vol dwn, or all hw buttons and " +
                                   "connect usb.\n" +
                                   "For preloader mode, don't press any hw button and connect usb.\n"
                                   "If it is already connected and on, hold power for 10 seconds to reset.\n")
@@ -174,7 +174,6 @@ class Port(metaclass=LogBase):
                     loop += 1
                     time.sleep(0.3)
                     sys.stdout.flush()
-
 
             except Exception as serr:
                 if "access denied" in str(serr):

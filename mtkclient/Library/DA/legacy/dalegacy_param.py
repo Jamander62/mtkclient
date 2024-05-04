@@ -127,6 +127,7 @@ class Cmd:
     MEMORY_TEST_CMD = b"\xFE"
     ENTER_RELAY_MODE_CMD = b"\xFF"
 
+
 class Rsp:
     SOC_OK = b"\xC1"
     SOC_FAIL = b"\xCF"

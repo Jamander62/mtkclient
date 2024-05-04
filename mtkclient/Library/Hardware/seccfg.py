@@ -149,7 +149,7 @@ class seccfgV3(metaclass=LogBase):
         self.org_data = None
         self.hwc = hwc
         self.mtk = mtk
-        self.info = b"AND_SECCFG_v\x00\x00\x00\x00"
+        self.info_header = b"AND_SECCFG_v\x00\x00\x00\x00"
         self.magic = 0x4D4D4D4D
         self.seccfg_ver = 3
         self.seccfg_size = 0x1860
@@ -189,7 +189,7 @@ class seccfgV3(metaclass=LogBase):
         if data[:0x10] != b"AND_SECCFG_v\x00\x00\x00\x00":
             return False
         rf = structhelper_io(BytesIO(bytearray(data)))
-        self.info = rf.bytes(0x10)
+        self.info_header = rf.bytes(0x10)
         self.magic = rf.dword()
         self.seccfg_ver = rf.dword()
         self.seccfg_size = rf.dword()
@@ -205,11 +205,11 @@ class seccfgV3(metaclass=LogBase):
             self.error("Unknown V3 seccfg structure !")
             return False
         ret = self.hwc.sej.sej_sec_cfg_sw(self.data, False)
-        if ret[:4] not in [b"IIII",b"CCCC",b"\x00\x00\x00\x00"]:
+        if ret[:4] not in [b"IIII", b"CCCC", b"\x00\x00\x00\x00"]:
             ret = self.hwc.sej.sej_sec_cfg_hw_V3(self.data, False)
-            if ret[:4] not in [b"IIII",b"CCCC",b"\x00\x00\x00\x00"]:
+            if ret[:4] not in [b"IIII", b"CCCC", b"\x00\x00\x00\x00"]:
                 ret = self.hwc.sej.sej_sec_cfg_hw(self.data, False)
-                if ret[:4] not in [b"IIII",b"CCCC",b"\x00\x00\x00\x00"]:
+                if ret[:4] not in [b"IIII", b"CCCC", b"\x00\x00\x00\x00"]:
                     self.error("Unknown V3 seccfg encryption !")
                     return False
                 else:
@@ -223,11 +223,11 @@ class seccfgV3(metaclass=LogBase):
         self.imginfo = [ed.bytes(0x68) for _ in range(20)]
         self.siu_status = ed.dword()
         self.seccfg_status = ed.dword()
-        if self.seccfg_status not in [SECCFG_STATUS.SEC_CFG_COMPLETE_NUM,SECCFG_STATUS.SEC_CFG_INCOMPLETE_NUM]:
+        if self.seccfg_status not in [SECCFG_STATUS.SEC_CFG_COMPLETE_NUM, SECCFG_STATUS.SEC_CFG_INCOMPLETE_NUM]:
             return False
         self.seccfg_attr = ed.dword()
-        if self.seccfg_attr not in [SECCFG_ATTR.ATTR_DEFAULT,SECCFG_ATTR.ATTR_UNLOCK,SECCFG_ATTR.ATTR_MP_DEFAULT,
-                                    SECCFG_ATTR.ATTR_LOCK, SECCFG_ATTR.ATTR_CUSTOM,SECCFG_ATTR.ATTR_VERIFIED]:
+        if self.seccfg_attr not in [SECCFG_ATTR.ATTR_DEFAULT, SECCFG_ATTR.ATTR_UNLOCK, SECCFG_ATTR.ATTR_MP_DEFAULT,
+                                    SECCFG_ATTR.ATTR_LOCK, SECCFG_ATTR.ATTR_CUSTOM, SECCFG_ATTR.ATTR_VERIFIED]:
             return False
         self.seccfg_ext = ed.bytes(0x1000 + 4)
         return True
@@ -252,7 +252,7 @@ class seccfgV3(metaclass=LogBase):
 
         data = bytearray()
         wf = BytesIO(data)
-        wf.write(self.info)
+        wf.write(self.info_header)
         wf.write(int.to_bytes(self.magic, 4, 'little'))
         wf.write(int.to_bytes(self.seccfg_ver, 4, 'little'))
         wf.write(int.to_bytes(self.seccfg_size, 4, 'little'))
@@ -287,16 +287,20 @@ class seccfgV3(metaclass=LogBase):
             data += b"\x00"
         return True, bytearray(data)
 
+
 if __name__ == "__main__":
-    with open("seccfg.bin","rb") as rf:
+    with open("seccfg.bin", "rb") as rf:
         data = rf.read()
     from hwcrypto import hwcrypto, crypto_setup
+
     setup = crypto_setup()
     hwc = hwcrypto(setup)
+
     class mtk:
         config = Mtk_Config()
         sej_base = None
-    v3=seccfgV3(hwc,mtk)
+
+    v3 = seccfgV3(hwc, mtk)
     v3.parse(data)
-    ret, newdata=v3.create("lock")
+    ret, newdata = v3.create("lock")
     print(newdata.hex())

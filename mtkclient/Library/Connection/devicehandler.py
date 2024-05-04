@@ -3,8 +3,11 @@
 # (c) B.Kerler 2018-2023
 import inspect
 import traceback
+import logging
+import os
 from binascii import hexlify
-from mtkclient.Library.utils import *
+from mtkclient.Library.utils import LogBase, unpack
+
 
 class DeviceClass(metaclass=LogBase):
 
@@ -36,13 +39,19 @@ class DeviceClass(metaclass=LogBase):
             fh = logging.FileHandler(logfilename, encoding='utf-8')
             self.__logger.addHandler(fh)
 
+    def get_read_packetsize(self):
+        raise NotImplementedError()
+
+    def get_write_packetsize(self):
+        raise NotImplementedError()
+
     def connect(self, EP_IN=-1, EP_OUT=-1):
         raise NotImplementedError()
 
-    def setportname(self, portname:str):
+    def setportname(self, portname: str):
         raise NotImplementedError()
 
-    def set_fast_mode(self, enabled:bool):
+    def set_fast_mode(self, enabled: bool):
         raise NotImplementedError
 
     def close(self, reset=False):
@@ -120,7 +129,7 @@ class DeviceClass(metaclass=LogBase):
             stack_trace = traceback.format_stack(frame)
             td = []
             for trace in stack_trace:
-                if not "verify_data" in trace and not "Port" in trace:
+                if "verify_data" not in trace and "Port" not in trace:
                     td.append(trace)
             self.debug(td[:-1])
 
@@ -132,7 +141,7 @@ class DeviceClass(metaclass=LogBase):
                         try:
                             self.debug(pre + line.decode('utf-8'))
                             rdata += line + b"\n"
-                        except:
+                        except Exception:
                             v = hexlify(line)
                             self.debug(pre + v.decode('utf-8'))
                     return rdata

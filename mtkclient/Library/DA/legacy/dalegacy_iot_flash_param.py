@@ -3,6 +3,7 @@ from mtkclient.Library.utils import structhelper
 from mtkclient.config.mtk_config import Mtk_Config
 from struct import pack
 
+
 class configinfo_iot:
     m_int_sram_ret = None
     m_int_sram_size = None
@@ -31,6 +32,7 @@ class configinfo_iot:
         res += f"m_ext_ram_size = {hex(self.m_ext_ram_size)}\n"
         res += f"sf_candidate = {self.sf_candidate.hex()}\n"
         return res
+
 
 class emmcinfo_iot:
     m_emmc_ret = None
@@ -71,6 +73,7 @@ class emmcinfo_iot:
         res += f"m_emmc_gp_size[3] = {hex(self.m_emmc_gp_size[3])}\n"
         res += f"m_emmc_ua_size = {hex(self.m_emmc_ua_size)}\n"
         return res
+
 
 class nandinfo_iot:
     m_nand_info = None

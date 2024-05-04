@@ -1,5 +1,4 @@
 import os
-import sys
 from struct import unpack, pack
 
 from mtkclient.config.payloads import pathconfig
@@ -71,7 +70,7 @@ class xflashext(metaclass=LogBase):
 
             register_devctrl = find_binary(self.da2, b"\x38\xB5\x05\x46\x0C\x20")
 
-            ####################### EMMC ##########################################
+            # EMMC
             mmc_get_card = find_binary(self.da2, b"\x4B\x4F\xF4\x3C\x72")
             if mmc_get_card is not None:
                 mmc_get_card -= 1
@@ -94,7 +93,7 @@ class xflashext(metaclass=LogBase):
             if mmc_rpmb_send_command is None:
                 mmc_rpmb_send_command = find_binary(self.da2, b"\x2D\xE9\xF0\x41\x4F\xF6\xFD\x74")
 
-            ####################### UFS ##########################################
+            # UFS
             # ptr is right after ufshcd_probe_hba and at the beginning
             g_ufs_hba = None
             ptr_g_ufs_hba = find_binary(self.da2, b"\x20\x46\x0B\xB0\xBD\xE8\xF0\x83\x00\xBF")
@@ -110,7 +109,6 @@ class xflashext(metaclass=LogBase):
                     if ptr_g_ufs_hba is not None:
                         g_ufs_hba = int.from_bytes(self.da2[ptr_g_ufs_hba + 10 + 0x8:ptr_g_ufs_hba + 10 + 0x8 + 4],
                                                    'little')
-
 
             if ptr_g_ufs_hba is not None:
                 ufshcd_get_free_tag = find_binary(self.da2, b"\xB5.\xB1\x90\xF8")
@@ -197,6 +195,15 @@ class xflashext(metaclass=LogBase):
         self.info("Patching da2 ...")
         # open("da2.bin","wb").write(da2)
         da2patched = bytearray(da2)
+        # Patch huawei security, rma state
+        pos = 0
+        huawei = find_binary(da2, b"\x01\x2B\x03\xD1\x01\x23", pos)
+        if huawei is not None:
+            da2patched[huawei:huawei + 4] = b"\x00\x00\x00\x00"
+        # Patch oppo security mt6765
+        oppo = find_binary(da2, b"\x01\x4B\x18\x78\x70\x47")
+        if oppo is not None:
+            da2patched[oppo:oppo + 4] = b"\x4F\xF0\x01\x00"
         # Patch oppo security
         oppo = 0
         pos = 0
@@ -212,9 +219,9 @@ class xflashext(metaclass=LogBase):
         else:
             self.warning("Security check not patched.")
         # Patch hash check
-        authaddr = find_binary(da2, int.to_bytes(0xC0070004,4, 'little'))
+        authaddr = find_binary(da2, int.to_bytes(0xC0070004, 4, 'little'))
         if authaddr:
-            da2patched[authaddr:authaddr + 4] = int.to_bytes(0,4,'little')
+            da2patched[authaddr:authaddr + 4] = int.to_bytes(0, 4, 'little')
         elif authaddr is None:
             authaddr = find_binary(da2, b"\x4F\xF0\x04\x09\xCC\xF2\x07\x09")
             if authaddr:
@@ -226,7 +233,7 @@ class xflashext(metaclass=LogBase):
                 else:
                     self.warning("Hash check not patched.")
         # Disable da anti rollback version check
-        antirollback = find_binary(da2, int.to_bytes(0xC0020053,4,'little'))
+        antirollback = find_binary(da2, int.to_bytes(0xC0020053, 4, 'little'))
         if antirollback:
             da2patched[antirollback:antirollback + 4] = int.to_bytes(0, 4, 'little')
             self.info("DA version anti-rollback patched")
@@ -433,7 +440,7 @@ class xflashext(metaclass=LogBase):
     def read_rpmb(self, filename=None, display=True):
         progressbar = progress(1, self.mtk.config.guiprogress)
         sectors = 0
-        #val = self.custom_rpmb_init()
+        # val = self.custom_rpmb_init()
         ufs = False
         if self.xflash.emmc.rpmb_size != 0:
             sectors = self.xflash.emmc.rpmb_size // 0x100
@@ -500,7 +507,7 @@ class xflashext(metaclass=LogBase):
                     if not self.custom_rpmb_write(sector=sector, data=b"\x00" * 0x100, ufs=ufs):
                         self.error(f"Couldn't erase rpmb at sector {sector}.")
                         return False
-                self.info(f"Done erasing rpmb")
+                self.info("Done erasing rpmb")
                 return True
         return False
 
@@ -579,7 +586,7 @@ class xflashext(metaclass=LogBase):
             efuseconfig = efuse(base, hwcode)
             addr = efuseconfig.efuses[idx]
             if addr < 0x1000:
-                return int.to_bytes(addr,4,'little')
+                return int.to_bytes(addr, 4, 'little')
             data = bytearray(self.mtk.daloader.peek(addr=addr, length=4))
             return data
         return None
@@ -606,37 +613,37 @@ class xflashext(metaclass=LogBase):
                     data.append(bytearray(self.mtk.daloader.peek(addr=addr, length=4)))
             return data
 
-    def custom_read_reg(self, addr:int, length:int) -> bytes:
-        data=bytearray()
-        for pos in range(addr,addr+length,4):
-            tmp=self.custom_readregister(pos)
-            if tmp==b"":
+    def custom_read_reg(self, addr: int, length: int) -> bytes:
+        data = bytearray()
+        for pos in range(addr, addr + length, 4):
+            tmp = self.custom_readregister(pos)
+            if tmp == b"":
                 break
-            data.extend(tmp.to_bytes(4,'little'))
+            data.extend(tmp.to_bytes(4, 'little'))
         return data
 
     def generate_keys(self):
-        if self.config.hwcode in [0x2601,0x6572]:
+        if self.config.hwcode in [0x2601, 0x6572]:
             base = 0x11141000
-        elif self.config.hwcode==0x6261:
+        elif self.config.hwcode == 0x6261:
             base = 0x70000000
-        elif self.config.hwcode in [0x8172,0x8176]:
+        elif self.config.hwcode in [0x8172, 0x8176]:
             base = 0x122000
         else:
             base = 0x100000
         if self.config.meid is None:
             try:
-                data = b"".join([pack("<I", val) for val in self.readmem(base+0x8EC, 0x16 // 4)])
+                data = b"".join([pack("<I", val) for val in self.readmem(base + 0x8EC, 0x16 // 4)])
                 self.config.meid = data
                 self.config.set_meid(data)
-            except:
+            except Exception:
                 return
         if self.config.socid is None:
             try:
-                data = b"".join([pack("<I", val) for val in self.readmem(base+0x934, 0x20 // 4)])
+                data = b"".join([pack("<I", val) for val in self.readmem(base + 0x934, 0x20 // 4)])
                 self.config.socid = data
                 self.config.set_socid(data)
-            except:
+            except Exception:
                 return
         hwc = self.cryptosetup()
         meid = self.config.get_meid()
@@ -645,12 +652,12 @@ class xflashext(metaclass=LogBase):
         cid = self.config.get_cid()
         otp = self.config.get_otp()
         retval = {}
-        #data=hwc.aes_hwcrypt(data=bytes.fromhex("A9 E9 DC 38 BF 6B BD 12 CC 2E F9 E6 F5 65 E8 C6 88 F7 14 11 80 2E 4D 91 8C 2B 48 A5 BB 03 C3 E5"), mode="sst", btype="sej",
+        # data=hwc.aes_hwcrypt(data=bytes.fromhex("A9 E9 DC 38 BF 6B BD 12 CC 2E F9 E6 F5 65 E8 C6 88 F7 14 11 80 2E 4D 91 8C 2B 48 A5 BB 03 C3 E5"), mode="sst", btype="sej",
         #                encrypt=False)
-        #self.info(data.hex())
-        pubk=self.read_pubk()
+        # self.info(data.hex())
+        pubk = self.read_pubk()
         if pubk is not None:
-            retval["pubkey"]=pubk.hex()
+            retval["pubkey"] = pubk.hex()
             self.info("PUBK        : " + pubk.hex())
             self.config.hwparam.writesetting("pubkey", pubk.hex())
         if meid is not None:

@@ -7,6 +7,7 @@ from mtkclient.gui.toolkit import trap_exc_during_debug, asyncThread
 
 sys.excepthook = trap_exc_during_debug
 
+
 class EraseFlashWindow(QObject):
     enableButtonsSignal = Signal()
     disableButtonsSignal = Signal()
@@ -34,7 +35,7 @@ class EraseFlashWindow(QObject):
     def erasePartition(self):
         self.parent.Status["rpmb"] = False
         self.ui.erasepartitionsbtn.setEnabled(False)
-        thread = asyncThread(parent=self.parent, n=0, function=self.erasePartitionAsync,parameters=[])
+        thread = asyncThread(parent=self.parent, n=0, function=self.erasePartitionAsync, parameters=[])
         thread.sendToLogSignal.connect(self.sendToLog)
         thread.update_status_text.connect(self.parent.update_status_text)
         thread.sendUpdateSignal.connect(self.parent.updateState)
@@ -127,8 +128,9 @@ class EraseFlashWindow(QObject):
         self.parent.Status["totalsize"] = totalsize
         for partition in self.parent.erasepartitionCheckboxes:
             if self.parent.erasepartitionCheckboxes[partition]['box'].isChecked():
-                self.parent.Status["allPartitions"][partition] = {"size": self.parent.erasepartitionCheckboxes[partition]['size'],
-                                                               "done": False}
+                self.parent.Status["allPartitions"][partition] = {
+                    "size": self.parent.erasepartitionCheckboxes[partition]['size'],
+                    "done": False}
         for partition in self.parent.erasepartitionCheckboxes:
             if self.parent.erasepartitionCheckboxes[partition]['box'].isChecked():
                 variables = mock.Mock()

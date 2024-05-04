@@ -90,8 +90,8 @@ class DAloader(metaclass=LogBase):
         return idx, hashmode, hashlen
 
     def find_da_hash_V6(self, da1, siglen):
-        pos = len(da1)-siglen-0x30
-        hash = da1[pos:pos+0x30]
+        pos = len(da1) - siglen - 0x30
+        hash = da1[pos:pos + 0x30]
         if hash[-4:] == b"\x00\x00\x00\x00":
             return pos, 2
         return -1, -1
@@ -102,12 +102,12 @@ class DAloader(metaclass=LogBase):
             hashed = da1[idx1 - 0x30:idx1]
             if hashed[-4:] == b"\x00\x00\x00\x00":
                 self.debug(f"SHA256({hashed[:0x20].hex()})")
-                return idx1-0x30, 2
+                return idx1 - 0x30, 2
             else:
                 self.debug(f"SHA1({hashed[-0x14:].hex()})")
-                return idx1-0x14, 1
+                return idx1 - 0x14, 1
         else:
-            self.debug(f"Error: No hash found")
+            self.debug("Error: No hash found")
         return -1, -1
 
     def calc_da_hash(self, da1, da2):
@@ -127,7 +127,7 @@ class DAloader(metaclass=LogBase):
             dahash = hashlib.sha1(da2[:hashlen]).digest()
         elif hashmode == 2:
             dahash = hashlib.sha256(da2[:hashlen]).digest()
-        orighash = da1[hashpos:hashpos + len(dahash)]
+        # orighash = da1[hashpos:hashpos + len(dahash)]
         da1[hashpos:hashpos + len(dahash)] = dahash
         return da1
 
@@ -202,8 +202,8 @@ class DAloader(metaclass=LogBase):
         self.flashmode = damodes.LEGACY
         if self.mtk.config.plcap is not None:
             PL_CAP0_XFLASH_SUPPORT = (0x1 << 0)
-            if self.mtk.config.plcap[
-                0] & PL_CAP0_XFLASH_SUPPORT == PL_CAP0_XFLASH_SUPPORT and self.mtk.config.blver > 1:
+            if (self.mtk.config.plcap[0] & PL_CAP0_XFLASH_SUPPORT == PL_CAP0_XFLASH_SUPPORT and
+                    self.mtk.config.blver > 1):
                 self.flashmode = damodes.XFLASH
         if self.mtk.config.chipconfig.damode == damodes.XFLASH:
             self.flashmode = damodes.XFLASH
@@ -273,7 +273,6 @@ class DAloader(metaclass=LogBase):
         else:
             data, partitions = self.da.partition.read_pmt()
             return data, partitions
-
 
     def upload(self):
         return self.da.upload_da1()
@@ -352,7 +351,7 @@ class DAloader(metaclass=LogBase):
             pg.show_progress("Dump:", length, length)
 
     def partition_table_category(self):
-        #if self.flashmode == damodes.XFLASH:
+        # if self.flashmode == damodes.XFLASH:
         #    return self.xft.get_partition_table_category()
         return "GPT"
 

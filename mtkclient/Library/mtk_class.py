@@ -44,21 +44,21 @@ class Mtk(metaclass=LogBase):
             ("B3F5807F04BF4FF4807305F011B84FF0FF307047", "B3F5807F04BF4FF480734FF000004FF000007047", "regular"),
             ("10B50C680268", "10B5012010BD", "ram blacklist"),
             ("08B5104B7B441B681B68", "00207047000000000000", "seclib_sec_usbdl_enabled"),
-            ("5072656C6F61646572205374617274","50617463686564204C205374617274", "Patched loader msg"),
-            ("F0B58BB002AE20250C460746","002070470000000000205374617274", "sec_img_auth"),
-            ("FFC0F3400008BD","FF4FF0000008BD","get_vfy_policy"),
-            ("040007C0","00000000","hash_check"),
+            ("5072656C6F61646572205374617274", "50617463686564204C205374617274", "Patched loader msg"),
+            ("F0B58BB002AE20250C460746", "002070470000000000205374617274", "sec_img_auth"),
+            ("FFC0F3400008BD", "FF4FF0000008BD", "get_vfy_policy"),
+            ("040007C0", "00000000", "hash_check"),
             ("CCF20709", "4FF00009", "hash_check2"),
-            (b"\x14\x2C\xF6.\xFE\xE7",b"\x00\x00\x00\x00\x00\x00","hash_check3")
+            (b"\x14\x2C\xF6.\xFE\xE7", b"\x00\x00\x00\x00\x00\x00", "hash_check3")
         ]
         i = 0
         for patchval in patches:
-            if type(patchval[0])==bytes:
-                idx = find_binary(data,patchval[0])
+            if type(patchval[0]) is bytes:
+                idx = find_binary(data, patchval[0])
                 if idx is None:
                     idx = -1
                 else:
-                    data[idx:idx + len(patch)] = patch
+                    data[idx:idx + len(patchval)] = patchval
                     self.info(f"Patched \"{patchval[2]}\" in preloader")
                     patched = True
             else:
@@ -72,7 +72,7 @@ class Mtk(metaclass=LogBase):
                     # break
             i += 1
         if not patched:
-            self.warning(f"Failed to patch preloader security")
+            self.warning("Failed to patch preloader security")
         else:
             # with open("preloader.patched", "wb") as wf:
             #    wf.write(data)
@@ -90,9 +90,9 @@ class Mtk(metaclass=LogBase):
             ("B3F5807F04BF4FF4807305F011B84FF0FF307047", "B3F5807F04BF4FF480734FF000004FF000007047", "regular"),
             ("10B50C680268", "10B5012010BD", "ram blacklist"),
             ("08B5104B7B441B681B68", "00207047000000000000", "seclib_sec_usbdl_enabled"),
-            ("5072656C6F61646572205374617274","50617463686564204C205374617274", "Patched loader msg"),
-            ("F0B58BB002AE20250C460746","002070470000000000205374617274", "sec_img_auth"),
-            ("FFC0F3400008BD","FF4FF0000008BD","get_vfy_policy")
+            ("5072656C6F61646572205374617274", "50617463686564204C205374617274", "Patched loader msg"),
+            ("F0B58BB002AE20250C460746", "002070470000000000205374617274", "sec_img_auth"),
+            ("FFC0F3400008BD", "FF4FF0000008BD", "get_vfy_policy")
         ]
         i = 0
         for patchval in patches:
@@ -106,7 +106,7 @@ class Mtk(metaclass=LogBase):
                 # break
             i += 1
         if not patched:
-            self.warning(f"Failed to patch preloader security")
+            self.warning("Failed to patch preloader security")
         else:
             # with open("preloader.patched", "wb") as wf:
             #    wf.write(data)
@@ -125,7 +125,7 @@ class Mtk(metaclass=LogBase):
         data = bytearray(data)
         magic = unpack("<I", data[:4])[0]
         if magic == 0x014D4D4D:
-            self.info(f"Valid preloader detected.")
+            self.info("Valid preloader detected.")
             daaddr = unpack("<I", data[0x1C:0x20])[0]
             # dasize = unpack("<I", data[0x20:0x24])[0]
             # maxsize = unpack("<I", data[0x24:0x28])[0]
@@ -169,7 +169,7 @@ class Mtk(metaclass=LogBase):
                 for crashmode in range(0, 3):
                     try:
                         plt.crash(crashmode)
-                    except:
+                    except Exception:
                         pass
                     rmtk = Mtk(config=self.config, loglevel=self.__logger.level,
                                serialportname=rmtk.port.serialportname)
@@ -190,6 +190,8 @@ class Mtk(metaclass=LogBase):
         return rmtk
 
     def bypass_security(self):
+        if self.config.chipconfig.damode == 6:
+            return self
         mtk = self.crasher()
         plt = PLTools(mtk, self.__logger.level)
         if self.config.payloadfile is None:

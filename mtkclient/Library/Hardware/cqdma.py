@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # (c) B.Kerler 2018-2023 GPLv3 License
-import logging, os
+import logging
+import os
 from struct import pack, unpack
 from mtkclient.Library.utils import LogBase
 

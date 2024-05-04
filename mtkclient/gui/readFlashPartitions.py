@@ -6,6 +6,7 @@ from mtkclient.gui.toolkit import convert_size, FDialog, trap_exc_during_debug, 
 
 sys.excepthook = trap_exc_during_debug
 
+
 class ReadFlashWindow(QObject):
     enableButtonsSignal = Signal()
     disableButtonsSignal = Signal()
@@ -39,7 +40,7 @@ class ReadFlashWindow(QObject):
         self.parent.Status["rpmb"] = False
         self.dumpFolder = self.fdialog.opendir(self.tr("Select output directory"))
         if self.dumpFolder:
-            thread = asyncThread(parent=self.parent, n=0, function=self.dumpPartitionAsync,parameters=[])
+            thread = asyncThread(parent=self.parent, n=0, function=self.dumpPartitionAsync, parameters=[])
             thread.sendToLogSignal.connect(self.sendToLog)
             thread.update_status_text.connect(self.parent.update_status_text)
             thread.sendUpdateSignal.connect(self.parent.updateState)
@@ -82,7 +83,7 @@ class ReadFlashWindow(QObject):
                 self.parent.Status["allPartitions"][partition]['done'] = True
                 # MtkTool.cmd_stage(mtkClass, None, None, None, False)
         if self.ui.readDumpGPTCheckbox.isChecked():
-            #also dump the GPT
+            # also dump the GPT
             variables = mock.Mock()
             variables.directory = self.dumpFolder
             variables.parttype = None
@@ -115,7 +116,7 @@ class ReadFlashWindow(QObject):
         self.parent.Status["currentPartitionSize"] = self.flashsize
         self.parent.Status["currentPartition"] = parttype
         self.ui.partProgressText.setText(self.tr("Ready to dump ") + convert_size(self.flashsize))
-        self.dumpFile = self.fdialog.save(self.parttype+".bin")
+        self.dumpFile = self.fdialog.save(self.parttype + ".bin")
         if self.dumpFile:
             thread = asyncThread(parent=self.parent, n=0, function=self.dumpFlashAsync, parameters=[self.parttype])
             thread.sendToLogSignal.connect(self.sendToLog)
@@ -130,7 +131,7 @@ class ReadFlashWindow(QObject):
         self.sendToLogSignal = toolkit.sendToLogSignal
         self.parent.Status["done"] = False
         thread = asyncThread(self.parent.parent(), 0, self.parent.updateStateAsync, [])
-        #thread.sendUpdateSignal.connect(self.updateDumpState)
+        # thread.sendUpdateSignal.connect(self.updateDumpState)
         thread.start()
         self.disableButtonsSignal.emit()
         variables = mock.Mock()

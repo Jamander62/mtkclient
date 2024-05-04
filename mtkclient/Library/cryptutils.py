@@ -323,10 +323,16 @@ class cryptutils:
                 self.digestLen = 0x20
 
         def pss_test(self):
-            N = "a2ba40ee07e3b2bd2f02ce227f36a195024486e49c19cb41bbbdfbba98b22b0e577c2eeaffa20d883a76e65e394c69d4b3c05a1e8fadda27edb2a42bc000fe888b9b32c22d15add0cd76b3e7936e19955b220dd17d4ea904b1ec102b2e4de7751222aa99151024c7cb41cc5ea21d00eeb41f7c800834d2c6e06bce3bce7ea9a5"
+            N = "a2ba40ee07e3b2bd2f02ce227f36a195024486e49c19cb41bbbdfbba98b22b0e577c2eeaffa20d883a76e65" + \
+                "e394c69d4b3c05a1e8fadda27edb2a42bc000fe888b9b32c22d15add0cd76b3e7936e19955b220dd17d4ea9" + \
+                "04b1ec102b2e4de7751222aa99151024c7cb41cc5ea21d00eeb41f7c800834d2c6e06bce3bce7ea9a5"
             e = "010001"
-            D = "050e2c3e38d886110288dfc68a9533e7e12e27d2aa56d2cdb3fb6efa990bcff29e1d2987fb711962860e7391b1ce01ebadb9e812d2fbdfaf25df4ae26110a6d7a26f0b810f54875e17dd5c9fb6d641761245b81e79f8c88f0e55a6dcd5f133abd35f8f4ec80adf1bf86277a582894cb6ebcd2162f1c7534f1f4947b129151b71"
-            MSG = "859eef2fd78aca00308bdc471193bf55bf9d78db8f8a672b484634f3c9c26e6478ae10260fe0dd8c082e53a5293af2173cd50c6d5d354febf78b26021c25c02712e78cd4694c9f469777e451e7f8e9e04cd3739c6bbfedae487fb55644e9ca74ff77a53cb729802f6ed4a5ffa8ba159890fc"
+            D = "050e2c3e38d886110288dfc68a9533e7e12e27d2aa56d2cdb3fb6efa990bcff29e1d2987fb711962860e739" + \
+                "1b1ce01ebadb9e812d2fbdfaf25df4ae26110a6d7a26f0b810f54875e17dd5c9fb6d641761245b81e79f8c8" + \
+                "8f0e55a6dcd5f133abd35f8f4ec80adf1bf86277a582894cb6ebcd2162f1c7534f1f4947b129151b71"
+            MSG = "859eef2fd78aca00308bdc471193bf55bf9d78db8f8a672b484634f3c9c26e6478ae10260fe0dd8c082e5" + \
+                  "3a5293af2173cd50c6d5d354febf78b26021c25c02712e78cd4694c9f469777e451e7f8e9e04cd3739c6b" + \
+                  "bfedae487fb55644e9ca74ff77a53cb729802f6ed4a5ffa8ba159890fc"
             salt = "e3b5d5d002c1bce50c2b65ef88a188d83bce7e61"
 
             N = int(N, 16)
@@ -430,7 +436,7 @@ class cryptutils:
                 return q
 
         def pss_verify(self, e, N, msghash, signature, emBits=1024, salt=None):
-            if salt == None:
+            if salt is None:
                 slen = self.digestLen
             else:
                 slen = len(salt)
@@ -471,7 +477,7 @@ class cryptutils:
                 print("[rsa_pss] : 0x01 check failed")
                 return False
 
-            if salt != None:
+            if salt is not None:
                 inBlock = b"\x00" * 8 + msghash + salt
                 mhash = self.hash(inBlock)
                 if mhash == hash:
@@ -501,7 +507,7 @@ def hmac_sha256(key, msg):
 
 def aes_gcm(ciphertext, nounce, aes_key, hdr, tag_auth, decrypt=True):
     cipher = AES.new(aes_key, AES.MODE_GCM, nounce)
-    if hdr != None:
+    if hdr is not None:
         cipher.update(hdr)
     if decrypt:
         plaintext = cipher.decrypt(ciphertext)

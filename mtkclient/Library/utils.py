@@ -14,20 +14,21 @@ import copy
 import time
 import io
 import datetime as dt
+from struct import unpack, pack
+from io import BytesIO
+
+try:
+    from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
+except ImportError:
+    pass
+try:
+    from keystone import Ks, KS_ARCH_ARM64, KS_MODE_LITTLE_ENDIAN, KsError
+except ImportError:
+    pass
+
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding='utf-8')
 
-try:
-    from capstone import *
-except ImportError:
-    pass
-try:
-    from keystone import *
-except ImportError:
-    pass
-
-from struct import unpack, pack
-from io import BytesIO
 
 class mtktee:
     magic = None
@@ -44,7 +45,7 @@ class mtktee:
     data = None
 
     def parse(self, data):
-        sh=structhelper_io(BytesIO(data))
+        sh = structhelper_io(BytesIO(data))
         self.magic = sh.qword()
         self.hdrlen = sh.dword()
         self.flag1 = sh.bytes()
@@ -58,6 +59,7 @@ class mtktee:
         self.ivseed = bytearray(sh.bytes(16))
         sh.seek(self.hdrlen)
         self.data = bytearray(sh.bytes(self.datalen))
+
 
 class structhelper_io:
     pos = 0
@@ -108,6 +110,7 @@ class structhelper_io:
     def seek(self, pos):
         self.data.seek(pos)
 
+
 def find_binary(data, strf, pos=0):
     t = strf.split(b".")
     pre = 0
@@ -124,7 +127,7 @@ def find_binary(data, strf, pos=0):
                             rt += 1
                             continue
                         rt += 1
-                        prep = data[pos+rt:].find(t[i])
+                        prep = data[pos + rt:].find(t[i])
                         if prep != 0:
                             error = 1
                             break
@@ -162,7 +165,6 @@ class progress:
         else:
             return 0, 0, ""
 
-
     def clear(self):
         self.prog = 0
         self.start = time.time()
@@ -182,10 +184,9 @@ class progress:
             if self.guiprogress is not None:
                 self.guiprogress(pos // self.pagesize)
             print_progress(prog, 100, prefix='Done',
-                           suffix=prefix + ' (Sector 0x%X of 0x%X) %0.2f MB/s' %
-                                  (pos // self.pagesize,
-                                   total // self.pagesize,
-                                   0), bar_length=50)
+                           suffix=prefix + ' (Sector 0x%X of 0x%X) %0.2f MB/s' % (pos // self.pagesize,
+                                                                                  total // self.pagesize,
+                                                                                  0), bar_length=50)
 
         if prog > self.prog:
             if self.guiprogress is not None:
@@ -197,7 +198,7 @@ class progress:
                 if datasize != 0 and tdiff != 0:
                     try:
                         throughput = datasize / tdiff
-                    except:
+                    except Exception:
                         throughput = 0
                 else:
                     throughput = 0
@@ -218,10 +219,9 @@ class progress:
                         hinfo = "%02ds left" % sec
 
                 print_progress(prog, 100, prefix='Progress:',
-                               suffix=prefix + f' (Sector 0x%X of 0x%X, {hinfo}) %0.2f MB/s' %
-                                      (pos // self.pagesize,
-                                       total // self.pagesize,
-                                       throughput), bar_length=50)
+                               suffix=prefix + f' (Sector 0x%X of 0x%X, {hinfo}) %0.2f MB/s' % (pos // self.pagesize,
+                                                                                                total // self.pagesize,
+                                                                                                throughput), bar_length=50)
                 self.prog = prog
                 self.progpos = pos
                 self.progtime = t0
@@ -273,7 +273,8 @@ class structhelper:
     def bytes(self, rlen=1):
         dat = self.data[self.pos:self.pos + rlen]
         self.pos += rlen
-        if rlen == 1: return dat[0]
+        if rlen == 1:
+            return dat[0]
         return dat
 
     def string(self, rlen=1):
@@ -323,7 +324,7 @@ def do_tcp_server(client, arguments, handler):
                             marguments = line.split(":")[1]
                             try:
                                 opts = parse_args(cmd, marguments, arguments)
-                            except:
+                            except Exception:
                                 response = "Wrong arguments\n<NAK>\n"
                                 opts = None
                             if opts is not None:
@@ -422,10 +423,10 @@ def parse_args(cmd, args, mainargs):
 def getint(valuestr):
     try:
         return int(valuestr)
-    except:
+    except Exception:
         try:
             return int(valuestr, 16)
-        except:
+        except Exception:
             return 0
 
 

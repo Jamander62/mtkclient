@@ -4,7 +4,7 @@ from struct import unpack, pack
 # from keystone import *
 from mtkclient.config.payloads import pathconfig
 from mtkclient.config.brom_config import efuse
-from mtkclient.Library.error import ErrorHandler, ErrorCodes_XFlash
+from mtkclient.Library.error import ErrorHandler
 from mtkclient.Library.Hardware.hwcrypto import crypto_setup, hwcrypto
 from mtkclient.Library.utils import LogBase, progress, logsetup, find_binary
 from mtkclient.Library.Hardware.seccfg import seccfgV3, seccfgV4
@@ -21,6 +21,7 @@ rpmb_error = [
     "Read failure",
     "Authentication key not yet programmed"
 ]
+
 
 class xmlflashext(metaclass=LogBase):
     def __init__(self, mtk, xmlflash, loglevel):
@@ -58,13 +59,16 @@ class xmlflashext(metaclass=LogBase):
                 instr1 = int.from_bytes(data[midx + 4:midx + 8], 'little')
                 instr2 = int.from_bytes(data[midx2 + 4:midx2 + 8], 'little')
                 addr = op_mov_to_offset(instr1, instr2, 2) - base
-                # rw_primitive = bytes.fromhex("FF412DE90040A0E30460A0E30C708DE20050A0E10710A0E1003090E508008DE200408DE506808DE004408DE508408DE50C608DE533FF2FE108309DE50710A0E10D00A0E10C608DE5040053E1003095E50A00001A33FF2FE100309DE50610A0E10C608DE50800A0E1003093E504308DE5043095E533FF2FE110D08DE2F081BDE833FF2FE1003095E50710A0E10800A0E10C608DE533FF2FE100309DE50400A0E104209DE5002083E5F2FFFFEA")
+                # rw_primitive = bytes.fromhex("FF412DE90040A0E30460A0E30C708DE20050A0E10710A0E1003090E508008DE200408" +
+                # "DE506808DE004408DE508408DE50C608DE533FF2FE108309DE50710A0E10D00A0E10C608DE5040053E1003095E50A00001" +
+                # "A33FF2FE100309DE50610A0E10C608DE50800A0E1003093E504308DE5043095E533FF2FE110D08DE2F081BDE833FF2FE10" +
+                # "03095E50710A0E10800A0E10C608DE533FF2FE100309DE50400A0E104209DE5002083E5F2FFFFEA")
                 # ks = Ks(KS_ARCH_ARM, KS_MODE_ARM + KS_MODE_LITTLE_ENDIAN)
-                content = """
+                # content =
+                """
                 PUSH            {R4-R6,R10,R11,LR}
                 ADD             R11, SP, #0x10
                 MOV             R8, R0
-                
                 MOVW            R0, #0xF000
                 MOVT            R0, #0x6800
                 MOV             R1, #4
@@ -74,7 +78,6 @@ class xmlflashext(metaclass=LogBase):
                 MOVW            R0, #0xF000
                 MOVT            R0, #0x6800
                 MOV             R1, [R0]
-                
                 MOVW            R0, #0x0000
                 MOVT            R0, #0x6800
                 LDR             R2, [R8]
@@ -101,14 +104,15 @@ class xmlflashext(metaclass=LogBase):
     def ack(self):
         xmlcmd = self.xflash.Cmd.create_cmd("CUSTOMACK")
         if self.xsend(xmlcmd):
-            result = self.xflash.get_response()
-            # DATA
-            data = self.xflash.get_response(raw=True)
-            # CMD:END
-            result = self.xflash.get_response()
+            # result =
+            self.xflash.get_response()
+            # DATA data =
+            self.xflash.get_response(raw=True)
+            # CMD:END result =
+            self.xflash.get_response()
             self.xflash.ack()
-            # CMD:START
-            result = self.xflash.get_response()
+            # CMD:START result =
+            self.xflash.get_response()
             self.xflash.ack()
             if data == b"\xA4\xA3\xA2\xA1":
                 return True
@@ -134,7 +138,7 @@ class xmlflashext(metaclass=LogBase):
             register_xml_cmd = find_binary(self.da2,
                                            b"\x70\x4C\x2D\xE9\x10\xB0\x8D\xE2\x00\x50\xA0\xE1\x14\x00\xA0\xE3")
 
-            ################# UFS ##################
+            # UFS
             idx = self.da2.find(b"\x00\x00\x94\xE5\x34\x10\x90\xE5\x01\x00\x11\xE3\x03\x00\x00\x0A")
             g_ufs_hba = 0
             ufshcd_queuecommand = 0
@@ -157,7 +161,7 @@ class xmlflashext(metaclass=LogBase):
                 else:
                     ufshcd_get_free_tag = ufshcd_get_free_tag + self.da2address
 
-            ###############  EMMC  ##########################
+            # EMMC
 
             mmc_get_card = find_binary(self.da2, b"\x90\x12\x20\xE0\x1E\xFF\x2F\xE1")
             if mmc_get_card is not None:
@@ -165,7 +169,7 @@ class xmlflashext(metaclass=LogBase):
             else:
                 mmc_get_card = 0
 
-            mmc_set_part_config = find_binary(self.da2,b"\xF0\x4B\x2D\xE9\x18\xB0\x8D\xE2\x23\xDE\x4D\xE2")
+            mmc_set_part_config = find_binary(self.da2, b"\xF0\x4B\x2D\xE9\x18\xB0\x8D\xE2\x23\xDE\x4D\xE2")
             if mmc_set_part_config is None:
                 mmc_set_part_config = 0
 
@@ -203,12 +207,12 @@ class xmlflashext(metaclass=LogBase):
         pos = 0
         idx = 0
         while idx is not None:
-            idx = find_binary(da2, b"\x00\x00\xA0\xE3\x04\x10\xA0\xE1\x00\x20\xA0\xE3..\x00\xEB\x01\x40\x00\xE3", pos)
+            idx = find_binary(da2, b"\x00\x00\xA0\xE3\x04\x10\xA0\xE1\x00\x20\xA0\xE3..\x00\xEB\x01\x40\x00\xE3",
+                              pos)
             if idx is not None:
                 offset = int.from_bytes(da2patched[idx + 0xC:idx + 0xE], 'little') - 1
-                da2patched[
-                idx:idx + 0x14] = b"\x00\x00\xA0\xE3\x04\x10\xA0\xE1\x2C\x22\x0E\xE3\x00\x20\x44\xE3" + offset.to_bytes(
-                    2, 'little') + b"\x00\xEB"
+                da2patched[idx:idx + 0x14] = (b"\x00\x00\xA0\xE3\x04\x10\xA0\xE1\x2C\x22\x0E\xE3\x00\x20\x44\xE3" +
+                                              offset.to_bytes(2, 'little') + b"\x00\xEB")
                 patched = True
                 pos += idx
             pos += 0x14
@@ -226,7 +230,6 @@ class xmlflashext(metaclass=LogBase):
         if not patched:
             self.warning("Write not allowed not patched.")
         return da2patched
-
 
     def custom_rpmb_read(self, sector, ufs=False):
         data = b''
@@ -354,7 +357,7 @@ class xmlflashext(metaclass=LogBase):
     def read_rpmb(self, filename=None, display=True):
         progressbar = progress(1, self.mtk.config.guiprogress)
         sectors = 0
-        #val = self.custom_rpmb_init()
+        # val = self.custom_rpmb_init()
         ufs = False
         if self.xflash.emmc is not None:
             sectors = self.xflash.emmc.rpmb_size // 0x100
@@ -421,7 +424,7 @@ class xmlflashext(metaclass=LogBase):
                     if not self.custom_rpmb_write(sector=sector, data=b"\x00" * 0x100, ufs=ufs):
                         self.error(f"Couldn't erase rpmb at sector {sector}.")
                         return False
-                self.info(f"Done erasing rpmb")
+                self.info("Done erasing rpmb")
                 return True
         return False
 
@@ -545,7 +548,6 @@ class xmlflashext(metaclass=LogBase):
             self.writeregister(addr + i, unpack("<I", value))
         return True
 
-
     def cryptosetup(self):
         setup = crypto_setup()
         setup.blacklist = self.config.chipconfig.blacklist
@@ -662,14 +664,14 @@ class xmlflashext(metaclass=LogBase):
                 data = b"".join([pack("<I", val) for val in self.readmem(base + 0x8EC, 0x16 // 4)])
                 self.config.meid = data
                 self.config.set_meid(data)
-            except:
+            except Exception:
                 return
         if self.config.socid is None:
             try:
                 data = b"".join([pack("<I", val) for val in self.readmem(base + 0x934, 0x20 // 4)])
                 self.config.socid = data
                 self.config.set_socid(data)
-            except:
+            except Exception:
                 return
         hwc = self.cryptosetup()
         meid = self.config.get_meid()

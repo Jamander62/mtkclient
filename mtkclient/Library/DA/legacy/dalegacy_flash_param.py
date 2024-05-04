@@ -3,6 +3,7 @@ from mtkclient.Library.utils import structhelper
 from mtkclient.config.mtk_config import Mtk_Config
 from struct import pack
 
+
 class sdcinfo:
     m_sdmmc_info = None
     m_sdmmc_ua_size = None
@@ -55,6 +56,7 @@ class configinfo:
         res += f"m_ext_ram_size = {hex(self.m_ext_ram_size)}\n"
         res += "randomid = 0x%X%X\n" % (self.randomid[0], self.randomid[1])
         return res
+
 
 class nandinfo64:
     m_nand_info = None
@@ -183,6 +185,7 @@ class nandinfo32:
         res += f"m_nand_flash_size = {hex(self.m_nand_flash_size)}\n"
         res += f"m_nand_flash_id_count = {hex(self.m_nand_flash_id_count)}\n"
         return res
+
 
 class norinfo:
     m_nor_ret = None

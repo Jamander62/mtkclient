@@ -7,3 +7,5 @@ shiboken6 >= 6.4.0.1
 pyside6 >= 6.4.0.1
 mock >= 4.0.3
 pyserial >= 3.5
+flake8
+fusepy

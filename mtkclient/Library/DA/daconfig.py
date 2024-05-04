@@ -92,7 +92,7 @@ class entry_region:
 
     def __repr__(self):
         return f"Buf:{hex(self.m_buf)},Len:{hex(self.m_len)},Addr:{hex(self.m_start_addr)}," + \
-               f"Offset:{hex(self.m_start_offset)},Sig:{hex(self.m_sig_len)}"
+            f"Offset:{hex(self.m_start_offset)},Sig:{hex(self.m_sig_len)}"
 
 
 class DA:
@@ -157,17 +157,16 @@ class DAconfig(metaclass=LogBase):
                         loaders.append(os.path.join(root, file))
             loaders = sorted(loaders)[::-1]
             for loader in loaders:
-                self.parse_da_loader(loader)
+                self.parse_da_loader(loader, self.dasetup)
         else:
             if not os.path.exists(loader):
                 self.warning("Couldn't open " + loader)
             else:
                 self.info("Using custom loader: " + loader)
-                self.parse_da_loader(loader)
+                self.parse_da_loader(loader, self.dasetup)
 
     def m_extract_emi(self, data):
         idx = data.find(b"\x4D\x4D\x4D\x01\x38\x00\x00\x00")
-        siglen = 0
         if idx != -1:
             data = data[idx:]
             mlen = unpack("<I", data[0x20:0x20 + 4])[0]
@@ -196,7 +195,7 @@ class DAconfig(metaclass=LogBase):
     def extract_emi(self, preloader=None) -> bytearray:
         if preloader is None:
             self.emi = None
-            return b""
+            return bytearray()
         if isinstance(preloader, bytearray) or isinstance(preloader, bytes):
             data = bytearray(preloader)
         elif isinstance(preloader, str):
@@ -208,11 +207,11 @@ class DAconfig(metaclass=LogBase):
                 exit(1)
         try:
             self.emiver, self.emi = self.m_extract_emi(data)
-        except:
+        except Exception:
             self.emiver = 0
             self.emi = None
 
-    def parse_da_loader(self, loader):
+    def parse_da_loader(self, loader:str, dasetup:dict):
         try:
             with open(loader, 'rb') as bootldr:
                 # data = bootldr.read()
@@ -228,13 +227,13 @@ class DAconfig(metaclass=LogBase):
                     da = DA(bootldr.read(0xDC))
                     da.setfilename(loader)
                     da.v6 = v6
-                    #if da.hw_code == 0x8127 and "5.1824" not in loader:
+                    # if da.hw_code == 0x8127 and "5.1824" not in loader:
                     #    continue
-                    if da.hw_code not in self.dasetup:
-                        if da.hw_code!=0:
-                            self.dasetup[da.hw_code] = [da]
+                    if da.hw_code not in dasetup:
+                        if da.hw_code != 0:
+                            dasetup[da.hw_code] = [da]
                     else:
-                        for ldr in self.dasetup[da.hw_code]:
+                        for ldr in dasetup[da.hw_code]:
                             found = False
                             if da.hw_version == ldr.hw_version:
                                 if da.sw_version == ldr.sw_version:
@@ -243,7 +242,7 @@ class DAconfig(metaclass=LogBase):
                                         break
                         if not found:
                             if da.hw_code != 0:
-                                self.dasetup[da.hw_code].append(da)
+                                dasetup[da.hw_code].append(da)
                 return True
         except Exception as e:
             self.error("Couldn't open loader: " + loader + ". Reason: " + str(e))

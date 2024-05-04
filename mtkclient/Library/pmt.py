@@ -1,19 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # (c) B.Kerler 2018-2023
-import argparse
-import os
-import sys
-import logging
-from io import BytesIO
-from enum import Enum
-from struct import unpack
-from binascii import hexlify
 
 try:
     from mtkclient.Library.utils import LogBase, structhelper
-except:
+except Exception:
     from utils import LogBase, structhelper
+
 
 class pmt(metaclass=LogBase):
     class pt_resident:
@@ -31,8 +24,8 @@ class pmt(metaclass=LogBase):
             self.sequencenumber = sh.bytes(1)
             self.tool_or_sd_update = sh.bytes(1)
             tmp = sh.bytes(1)
-            self.mirror_pt_dl = (tmp>>4)&0xF
-            self.mirror_pt_has_space = tmp&0xF
+            self.mirror_pt_dl = (tmp >> 4) & 0xF
+            self.mirror_pt_has_space = tmp & 0xF
             tmp = sh.bytes(1)
             self.pt_changed = (tmp >> 4) & 0xF
             self.pt_has_space = tmp & 0xF

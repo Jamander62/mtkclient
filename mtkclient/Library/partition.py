@@ -36,7 +36,7 @@ class Partition(metaclass=LogBase):
         else:
             addr = self.mtk.daloader.daconfig.flashsize - (2 * blocksize) + blocksize
         data = self.readflash(addr=addr, length=2 * self.config.pagesize, filename="", parttype=parttype, display=False)
-        magic = int.from_bytes(data[:4],'little')
+        magic = int.from_bytes(data[:4], 'little')
         if magic in [b"PTv3", b"MPT3"]:
             partdata = data[8:]
             partitions = []
@@ -44,6 +44,7 @@ class Partition(metaclass=LogBase):
                 partinfo = pt.pt_resident(partdata[partpos * 96:(partpos * 96) + 96])
                 if partinfo[:4] == b"\x00\x00\x00\x00":
                     break
+
                 class partf:
                     unique = b""
                     first_lba = 0

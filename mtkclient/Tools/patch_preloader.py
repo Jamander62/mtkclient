@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
-import os
 import sys
 import hashlib
-from mtkclient.Library.utils import LogBase, progress, logsetup, find_binary
-from struct import pack
-patches=[
-    ("B3F5807F01D1", "B3F5807F01D14FF000004FF000007047"), #rsa_verify / usbdl_vfy_da
-    ("B3F5807F04BF4FF4807305F011B84FF0FF307047", "B3F5807F04BF4FF480734FF000004FF000007047"), #rsa_verify / usbdl_vfy_da
-    ("2DE9F746802B","4FF000007047"), #rsa_verify / usbdl_vfy_da
-    ("802B2DE9","4FF000007047"),
-    ("8023BDE8","4FF000007047"), # DA verify fail
-    ("800053E3F344","0000A0E31EFF2FE1")
+from mtkclient.Library.utils import find_binary
+
+patches = [
+    ("B3F5807F01D1", "B3F5807F01D14FF000004FF000007047"),  # rsa_verify / usbdl_vfy_da
+    ("B3F5807F04BF4FF4807305F011B84FF0FF307047", "B3F5807F04BF4FF480734FF000004FF000007047"),
+    # rsa_verify / usbdl_vfy_da
+    ("2DE9F746802B", "4FF000007047"),  # rsa_verify / usbdl_vfy_da
+    ("802B2DE9", "4FF000007047"),
+    ("8023BDE8", "4FF000007047"),  # DA verify fail
+    ("800053E3F344", "0000A0E31EFF2FE1")
 ]
 
+
 def patch_preloader_security(data):
-    if data[:4]!=b"\x4D\x4D\x4D\x01":
+    if data[:4] != b"\x4D\x4D\x4D\x01":
         return data
-    patched=False
+    patched = False
     for patchval in patches:
-        pattern=bytes.fromhex(patchval[0])
+        pattern = bytes.fromhex(patchval[0])
         idx = data.find(pattern)
-        if idx!=-1:
-            patch=bytes.fromhex(patchval[1])
-            data[idx:idx+len(patch)]=patch
-            patched=True
+        if idx != -1:
+            patch = bytes.fromhex(patchval[1])
+            data[idx:idx + len(patch)] = patch
+            patched = True
             break
     if patched:
-        #with open(sys.argv[1]+".patched","wb") as wf:
+        # with open(sys.argv[1]+".patched","wb") as wf:
         #    wf.write(data)
         #    print("Patched !")
-        print(f"Patched preloader security")
+        print("Patched preloader security")
     else:
         print(f"Failed to patch preloader security: {sys.argv[1]}")
     return data
@@ -43,7 +44,7 @@ def patch_da2(da2):
     if is_security_enabled is not None:
         da2patched[is_security_enabled:is_security_enabled + 2] = b"\x00\x23"
     else:
-        self.warning("Security check not patched.")
+        print("Security check not patched.")
     # Patch hash check
     authaddr = find_binary(da2, b"\x04\x00\x07\xC0")
     if authaddr:
@@ -57,7 +58,7 @@ def patch_da2(da2):
             if authaddr:
                 da2patched[authaddr:authaddr + 14] = b"\x4F\xF0\x00\x09\x32\x46\x01\x98\x03\x99\x4F\xF0\x00\x09"
             else:
-                self.warning("Hash check not patched.")
+                print("Hash check not patched.")
     # Patch write not allowed
     # open("da2.bin","wb").write(da2patched)
     idx = 0
@@ -81,8 +82,9 @@ def patch_da2(da2):
                 """
                 patched = True
     if not patched:
-        self.warning("Write not allowed not patched.")
+        print("Write not allowed not patched.")
     return da2patched
+
 
 def fix_hash(da1, da2, hashpos, hashmode):
     da1 = bytearray(da1)
@@ -93,6 +95,7 @@ def fix_hash(da1, da2, hashpos, hashmode):
         dahash = hashlib.sha256(da2).digest()
     da1[hashpos:hashpos + len(dahash)] = dahash
     return da1
+
 
 def compute_hash_pos(da1, da2):
     hashdigest = hashlib.sha1(da2).digest()
@@ -106,17 +109,19 @@ def compute_hash_pos(da1, da2):
         return idx, hashmode
     return None, None
 
+
 def main():
     """
     with open(sys.argv[1],"rb") as rf:
         data=bytearray(rf.read())
         data=patch_preloader_security(data)
     """
-    da1=open("loaders/8167_200000MTK_AllInOne_DA_5.2136.bin","rb").read()
-    da2=open("loaders/8167_40000000MTK_AllInOne_DA_5.2136.bin", "rb").read()
-    hp,hm=compute_hash_pos(da1, da2[:-0x100])
-    da2=patch_da2(da2)
-    da1p=fix_hash(da1, da2, hp, hm)
+    da1 = open("loaders/8167_200000MTK_AllInOne_DA_5.2136.bin", "rb").read()
+    da2 = open("loaders/8167_40000000MTK_AllInOne_DA_5.2136.bin", "rb").read()
+    hp, hm = compute_hash_pos(da1, da2[:-0x100])
+    da2 = patch_da2(da2)
+    fix_hash(da1, da2, hp, hm)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

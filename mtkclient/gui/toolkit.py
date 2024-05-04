@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog, QCheckBox
 from traceback import print_exception
 from mtkclient.config.payloads import pathconfig
 
+
 class TimeEstim:
     def calcProcessTime(self, starttime, cur_iter, max_iter):
         telapsed = time.time() - starttime
@@ -49,43 +50,45 @@ class TimeEstim:
         self.progtime = t0
         return hinfo
 
+
 class CheckBox(QCheckBox):
-    def __init__( self, *args ):
+    def __init__(self, *args):
         super(CheckBox, self).__init__(*args)
         self._readOnly = False
 
-    def isReadOnly( self ):
+    def isReadOnly(self):
         return self._readOnly
 
-    def mousePressEvent( self, event ):
+    def mousePressEvent(self, event):
         if self.isReadOnly():
             event.accept()
         else:
             super(CheckBox, self).mousePressEvent(event)
 
-    def mouseMoveEvent( self, event ):
+    def mouseMoveEvent(self, event):
         if self.isReadOnly():
             event.accept()
         else:
             super(CheckBox, self).mouseMoveEvent(event)
 
-    def mouseReleaseEvent( self, event ):
+    def mouseReleaseEvent(self, event):
         if self.isReadOnly():
             event.accept()
         else:
             super(CheckBox, self).mouseReleaseEvent(event)
 
-    def keyPressEvent( self, event ):
+    def keyPressEvent(self, event):
         if self.isReadOnly():
             event.accept()
         else:
             super(CheckBox, self).keyPressEvent(event)
 
     @Slot(bool)
-    def setReadOnly( self, state ):
+    def setReadOnly(self, state):
         self._readOnly = state
 
     readOnly = Property(bool, isReadOnly, setReadOnly)
+
 
 def convert_size(size_bytes):
     if size_bytes <= 0:
@@ -112,11 +115,12 @@ class asyncThread(QThread):
     def run(self):
         self.function(self, self.parameters)
 
+
 class FDialog():
     def __init__(self, parent):
         pc = pathconfig()
         self.parent = parent
-        self.fdialog=QFileDialog(parent)
+        self.fdialog = QFileDialog(parent)
         self.lastpath = os.path.dirname(os.path.dirname(pc.scriptpath))
         self.fdialog.setDirectory(self.lastpath)
 
@@ -125,7 +129,7 @@ class FDialog():
         self.fdialog.setDirectory(self.lastpath)
         self.fdialog.selectFile(fname)
         ret = self.fdialog.getSaveFileName(self.parent, self.parent.tr("Select output file"), fname,
-                                          "Binary dump (*.bin)")
+                                           "Binary dump (*.bin)")
         if ret:
             fname = ret[0]
             if fname != "":
@@ -138,7 +142,7 @@ class FDialog():
         self.fdialog.setDirectory(self.lastpath)
         self.fdialog.selectFile(fname)
         ret = self.fdialog.getOpenFileName(self.parent, self.parent.tr("Select input file"),
-                                   fname, "Binary dump (*.bin)")
+                                           fname, "Binary dump (*.bin)")
         if ret:
             if isinstance(ret, tuple):
                 fname = os.path.normpath(ret[0])  # fixes backslash problem on windows
@@ -147,19 +151,20 @@ class FDialog():
                     return fname
         return None
 
-    def opendir(self,caption):
+    def opendir(self, caption):
         options = QFileDialog.Options()
         if sys.platform.startswith('freebsd') or sys.platform.startswith('linux'):
             options |= QFileDialog.DontUseNativeDialog
             options |= QFileDialog.DontUseCustomDirectoryIcons
         fname = os.path.join(self.lastpath)
         self.fdialog.setDirectory(self.lastpath)
-        fdir=self.fdialog.getExistingDirectory(self.parent, self.parent.tr(caption), fname, options=options)
-        fdir = os.path.normpath(fdir) #fixes backslash problem on windows
+        fdir = self.fdialog.getExistingDirectory(self.parent, self.parent.tr(caption), fname, options=options)
+        fdir = os.path.normpath(fdir)  # fixes backslash problem on windows
         if fdir != "" and fdir != ".":
             self.lastpath = fdir
             return fdir
         return None
+
 
 def trap_exc_during_debug(type_, value, traceback):
     print(print_exception(type_, value, traceback), flush=True)

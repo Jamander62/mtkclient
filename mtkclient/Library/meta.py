@@ -7,13 +7,14 @@ import logging
 from enum import Enum
 from mtkclient.Library.utils import LogBase, logsetup
 
+
 class META(metaclass=LogBase):
     class Mode(Enum):
         FASTBOOT = b"FASTBOOT"  # fastboot mode
-        META = b"METAMETA"      # MAUI META mode
+        META = b"METAMETA"  # MAUI META mode
         EMETA = b"ADVEMETA"  # Advanced META mode
-        FACT = b"FACTFACT"      # Factory menu
-        ATE  = b"FACTORYM"      # ATE Signaling Test
+        FACT = b"FACTFACT"  # Factory menu
+        ATE = b"FACTORYM"  # ATE Signaling Test
         READY = b"READY"
         ATNBOOT = b"AT+NBOOT"
 
@@ -50,21 +51,22 @@ class META(metaclass=LogBase):
                     EP_IN = cdc.EP_IN.read
                     maxinsize = cdc.EP_IN.wMaxPacketSize
                     while True:
-                        resp=b""
+                        resp = b""
                         try:
                             resp = bytearray(EP_IN(maxinsize))
-                        except Exception as err:
+                        except Exception:
                             break
-                        if resp==b"READY":
+                        if resp == b"READY":
                             EP_OUT(metamode, len(metamode))
-                            while resp==b"READY":
+                            while resp == b"READY":
                                 resp = bytearray(EP_IN(maxinsize))
-                            if resp in [b"ATEMEVDX",b"TOOBTSAF",b"ATEMATEM",b"TCAFTCAF",b"MYROTCAF"]:
+                            if resp in [b"ATEMEVDX", b"TOOBTSAF", b"ATEMATEM", b"TCAFTCAF", b"MYROTCAF"]:
                                 if resp == b"ATEMATEM":
                                     EP_OUT(b"\x04\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\xC0")
                                     EP_OUT(b"\x04\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\xC0")
                                     EP_OUT(b"\x06\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\xC0\x00\x80\x00\x00")
-                                    info = EP_IN(13) #!READYATEM
+                                    # INFO =
+                                    EP_IN(13)  # !READYATEM
                                     EP_OUT(b"DISCONNECT")
                                 return True
                             self.warning(resp)
@@ -74,7 +76,7 @@ class META(metaclass=LogBase):
                         cdc.connected = False
                     if loop == 5:
                         sys.stdout.write('\n')
-                        self.info("Hint:\n\nPower off the phone before connecting.\n" + \
+                        self.info("Hint:\n\nPower off the phone before connecting.\n" +
                                   "For preloader mode, don't press any hw button and connect usb.\n")
                         sys.stdout.write('\n')
                     if loop >= 10:

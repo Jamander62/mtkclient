@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # (c) B.Kerler 2018-2023 GPLv3 License
 import logging
-
+import os
+import sys
 import usb.core  # pyusb
 import usb.util
 import time
@@ -17,8 +18,9 @@ from binascii import hexlify
 from ctypes import c_void_p, c_int
 
 from mtkclient.Library.DA.xml.xml_param import max_xml_data_length
-from mtkclient.Library.utils import *
+from mtkclient.Library.utils import write_object
 from mtkclient.Library.Connection.devicehandler import DeviceClass
+
 USB_DIR_OUT = 0  # to device
 USB_DIR_IN = 0x80  # to host
 
@@ -41,17 +43,54 @@ USB_RECIP_RPIPE = 0x05
 
 tag = 0
 
-CDC_CMDS = {
-    "SEND_ENCAPSULATED_COMMAND": 0x00,
-    "GET_ENCAPSULATED_RESPONSE": 0x01,
-    "SET_COMM_FEATURE": 0x02,
-    "GET_COMM_FEATURE": 0x03,
-    "CLEAR_COMM_FEATURE": 0x04,
-    "SET_LINE_CODING": 0x20,
-    "GET_LINE_CODING": 0x21,
-    "SET_CONTROL_LINE_STATE": 0x22,
-    "SEND_BREAK": 0x23,  # wValue is break time
-}
+
+class CDC_CMDS:
+    SEND_ENCAPSULATED_COMMAND = 0x00
+    GET_ENCAPSULATED_RESPONSE = 0x01
+    SET_COMM_FEATURE = 0x02
+    GET_COMM_FEATURE = 0x03
+    CLEAR_COMM_FEATURE = 0x04
+    SET_AUX_LINE_STATE = 0x10
+    SET_HOOK_STATE = 0x11
+    PULSE_SETUP = 0x12
+    SEND_PULSE = 0x13
+    SEND_PULSE_TIME = 0x14
+    RING_AUX_JACK = 0x15
+    SET_LINE_CODING = 0x20
+    GET_LINE_CODING = 0x21
+    SET_CONTROL_LINE_STATE = 0x22
+    SEND_BREAK = 0x23  # wValue is break time
+    SET_RINGER_PARMS = 0x30
+    GET_RINGER_PARMS = 0x31
+    SET_OPERATION_PARMS = 0x32
+    GET_OPERATION_PARMS = 0x33
+    SET_LINE_PARMS = 0x34
+    GET_LINE_PARMS = 0x35
+    DIAL_DIGITS = 0x36
+    SET_UNIT_PARAMETER = 0x37
+    GET_UNIT_PARAMETER = 0x38
+    CLEAR_UNIT_PARAMETER = 0x39
+    GET_PROFILE = 0x3A
+    SET_ETHERNET_MULTICAST_FILTERS = 0x40
+    SET_ETHERNET_POWER_MANAGEMENT_PATTERN_FILTER = 0x41
+    GET_ETHERNET_POWER_MANAGEMENT_PATTERN_FILTER = 0x42
+    SET_ETHERNET_PACKET_FILTER = 0x43
+    GET_ETHERNET_STATISTIC = 0x44
+    SET_ATM_DATA_FORMAT = 0x50
+    GET_ATM_DEVICE_STATISTICS = 0x51
+    SET_ATM_DEFAULT_VC = 0x52
+    GET_ATM_VC_STATISTICS = 0x53
+    GET_NTB_PARAMETERS = 0x80
+    GET_NET_ADDRESS = 0x81
+    SET_NET_ADDRESS = 0x82
+    GET_NTB_FORMAT = 0x83
+    SET_NTB_FORMAT = 0x84
+    GET_NTB_INPUT_SIZE = 0x85
+    SET_NTB_INPUT_SIZE = 0x86
+    GET_MAX_DATAGRAM_SIZE = 0x87
+    SET_MAX_DATAGRAM_SIZE = 0x88
+    GET_CRC_MODE = 0x89
+    SET_CRC_MODE = 0x8A
 
 
 class usb_class(DeviceClass):
@@ -99,7 +138,7 @@ class usb_class(DeviceClass):
             try:
                 self.backend.lib.libusb_set_option.argtypes = [c_void_p, c_int]
                 self.backend.lib.libusb_set_option(self.backend.ctx, 1)
-            except:
+            except Exception:
                 self.backend = None
 
     def set_fast_mode(self, enabled):
@@ -114,7 +153,7 @@ class usb_class(DeviceClass):
             stack_trace = traceback.format_stack(frame)
             td = []
             for trace in stack_trace:
-                if not "verify_data" in trace and not "Port" in trace:
+                if "verify_data" not in trace and "Port" not in trace:
                     td.append(trace)
             self.debug(td[:-1])
 
@@ -126,7 +165,7 @@ class usb_class(DeviceClass):
                         try:
                             self.debug(pre + line.decode('utf-8'))
                             rdata += line + b"\n"
-                        except:
+                        except Exception:
                             v = hexlify(line)
                             self.debug(pre + v.decode('utf-8'))
                     return rdata
@@ -163,7 +202,7 @@ class usb_class(DeviceClass):
         dbits = {5, 6, 7, 8, 16}
         pmodes = {0, 1, 2, 3, 4}
         brates = {300, 600, 1200, 2400, 4800, 9600, 14400,
-                  19200, 28800, 38400, 57600, 115200, 230400}
+                  19200, 28800, 38400, 57600, 115200, 230400, 460800, 921600}
 
         if stopbits is not None:
             if stopbits not in sbits.keys():
@@ -213,7 +252,7 @@ class usb_class(DeviceClass):
         req_type = (txdir << 7) + (req_type << 5) + recipient
         data = bytearray(linecode)
         wlen = self.device.ctrl_transfer(
-            req_type, CDC_CMDS["SET_LINE_CODING"],
+            req_type, CDC_CMDS.SET_LINE_CODING,
             data_or_wLength=data, wIndex=1)
         self.debug("Linecoding set, {}b sent".format(wlen))
 
@@ -223,11 +262,12 @@ class usb_class(DeviceClass):
         recipient = 1  # 0:device, 1:interface, 2:endpoint, 3:other
         req_type = (txdir << 7) + (req_type << 5) + recipient
         wlen = self.device.ctrl_transfer(
-            bmRequestType=req_type, bRequest=CDC_CMDS["SEND_BREAK"],
+            bmRequestType=req_type, bRequest=CDC_CMDS.SEND_BREAK,
             wValue=0, data_or_wLength=0, wIndex=1)
         self.debug("Break set, {}b sent".format(wlen))
 
     def setcontrollinestate(self, RTS=None, DTR=None, isFTDI=False):
+        cmds = CDC_CMDS()
         ctrlstate = (2 if RTS else 0) + (1 if DTR else 0)
         if isFTDI:
             ctrlstate += (1 << 8) if DTR is not None else 0
@@ -240,7 +280,7 @@ class usb_class(DeviceClass):
 
         wlen = self.device.ctrl_transfer(
             bmRequestType=req_type,
-            bRequest=1 if isFTDI else CDC_CMDS["SET_CONTROL_LINE_STATE"],
+            bRequest=1 if isFTDI else cmds.SET_CONTROL_LINE_STATE,
             wValue=ctrlstate,
             wIndex=1,
             data_or_wLength=0)
@@ -311,7 +351,7 @@ class usb_class(DeviceClass):
                 self.debug("No kernel driver supported: " + str(err))
             try:
                 usb.util.claim_interface(self.device, 0)
-            except:
+            except Exception:
                 return False
 
             self.debug(self.configuration)
@@ -324,7 +364,7 @@ class usb_class(DeviceClass):
             try:
                 if self.interface != 0:
                     usb.util.claim_interface(self.device, self.interface)
-            except:
+            except Exception:
                 return False
 
             self.EP_OUT = EP_OUT
@@ -332,15 +372,15 @@ class usb_class(DeviceClass):
             if EP_OUT == -1:
                 self.EP_OUT = usb.util.find_descriptor(itf,
                                                        # match the first OUT endpoint
-                                                       custom_match=lambda e: \
-                                                           usb.util.endpoint_direction(e.bEndpointAddress) ==
-                                                           usb.util.ENDPOINT_OUT)
+                                                       custom_match=lambda e:
+                                                       usb.util.endpoint_direction(e.bEndpointAddress) ==
+                                                       usb.util.ENDPOINT_OUT)
             if EP_IN == -1:
                 self.EP_IN = usb.util.find_descriptor(itf,
                                                       # match the first OUT endpoint
                                                       custom_match=lambda e: \
-                                                          usb.util.endpoint_direction(e.bEndpointAddress) ==
-                                                          usb.util.ENDPOINT_IN)
+                                                      usb.util.endpoint_direction(e.bEndpointAddress) ==
+                                                      usb.util.ENDPOINT_IN)
             self.connected = True
             return True
         print("Couldn't find CDC interface. Aborting.")
@@ -356,7 +396,7 @@ class usb_class(DeviceClass):
                     if not self.device.is_kernel_driver_active(self.interface):
                         # self.device.attach_kernel_driver(self.interface) #Do NOT uncomment
                         self.device.attach_kernel_driver(0)
-                except:
+                except Exception:
                     pass
             except Exception as err:
                 self.info(str(err))
@@ -365,7 +405,7 @@ class usb_class(DeviceClass):
                     if not self.device.is_kernel_driver_active(0):
                         # self.device.attach_kernel_driver(self.interface) #Do NOT uncomment
                         self.device.attach_kernel_driver(0)
-                except:
+                except Exception:
                     pass
             pass
             usb.util.dispose_resources(self.device)
@@ -380,7 +420,24 @@ class usb_class(DeviceClass):
         if isinstance(command, str):
             command = bytes(command, 'utf-8')
         pos = 0
-        if command == b'':
+        if command != b'':
+            i = 0
+            while pos < len(command):
+                try:
+                    ctr = self.EP_OUT.write(command[pos:pos + pktsize])
+                    if ctr <= 0:
+                        self.info(ctr)
+                    else:
+                        pos += ctr
+                except Exception as err:
+                    self.debug(str(err))
+                    # print("Error while writing")
+                    # time.sleep(0.01)
+                    i += 1
+                    if i == 3:
+                        return False
+                    pass
+        else:
             try:
                 self.EP_OUT.write(b'')
             except usb.core.USBError as err:
@@ -393,24 +450,14 @@ class usb_class(DeviceClass):
                         self.debug(str(err))
                         return False
                 return True
-        else:
-            i = 0
-            while pos < len(command):
-                try:
-                    ctr = self.EP_OUT.write(command[pos:pos + pktsize])
-                    if ctr <= 0:
-                        self.info(ctr)
-                    pos += pktsize
-                except Exception as err:
-                    self.debug(str(err))
-                    # print("Error while writing")
-                    # time.sleep(0.01)
-                    i += 1
-                    if i == 3:
-                        return False
-                    pass
         self.verify_data(bytearray(command), "TX:")
         return True
+
+    def get_read_packetsize(self):
+        return self.EP_IN.wMaxPacketSize
+
+    def get_write_packetsize(self):
+        return self.EP_OUT.wMaxPacketSize
 
     def usbread(self, resplen=None, maxtimeout=100):
         if resplen is None:
@@ -424,7 +471,7 @@ class usb_class(DeviceClass):
         wMaxPacketSize = self.EP_IN.wMaxPacketSize
         extend = res.extend
         buffer = None
-        buflen=min(resplen,wMaxPacketSize)
+        buflen = min(resplen, wMaxPacketSize)
         if self.fast:
             buffer = self.buffer[:buflen]
         while len(res) < resplen:
@@ -744,7 +791,8 @@ class Scsi:
             common_cmnd = b"\x16\xf9\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
             lun = 0
             timeout = 5000
-            ret_tag = self.send_mass_storage_command(lun, common_cmnd, USB_DIR_IN, 0x600)
+            # ret_tag =
+            self.send_mass_storage_command(lun, common_cmnd, USB_DIR_IN, 0x600)
             if datasize > 0:
                 data = self.usb.read(datasize, timeout)
                 print("DATA: " + hexlify(data).decode('utf-8'))

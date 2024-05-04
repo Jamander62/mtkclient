@@ -113,7 +113,7 @@ HASH_LENGTH_SIZE_IN_WORDS = 4
 HASH_LENGTH_SIZE_IN_BYTES = (HASH_LENGTH_SIZE_IN_WORDS * 4)
 
 # Offset, shift, size
-AES = {
+AES_t = {
     "KEY_0_0": [0x400, 0x0, 0x20],
     "KEY_0_1": [0x404, 0x0, 0x20],
     "KEY_0_2": [0x408, 0x0, 0x20],
@@ -855,14 +855,12 @@ SEP_ALG_MAX_BLOCK_SIZE SEP_HASH_BLOCK_SIZE_MAX
 
 SEP_MAX_COMBINED_ENGINES 4
 
-SEP_MAX_CTX_SIZE (max(sizeof(struct sep_ctx_rc4), \
-				sizeof(struct sep_ctx_cache_entry)))
+SEP_MAX_CTX_SIZE (max(sizeof(struct sep_ctx_rc4), sizeof(struct sep_ctx_cache_entry)))
 """
 
 
 def hw_desc_init():
-    res = [0, 0, 0, 0, 0, 0]
-    return res
+    return [0, 0, 0, 0, 0, 0]
 
 
 def bitmask(mask_size):
@@ -1067,7 +1065,7 @@ class dxcc(metaclass=LogBase):
         self.write32(self.dxcc_base + self.DX_DSCRPTR_QUEUE0_WORD4, data[4])
         self.write32(self.dxcc_base + self.DX_DSCRPTR_QUEUE0_WORD5, data[5])
 
-    def __init__(self, setup, loglevel=logging.INFO, gui:bool = False):
+    def __init__(self, setup, loglevel=logging.INFO, gui: bool = False):
         self.__logger = logsetup(self, self.__logger, loglevel, gui)
         self.hwcode = setup.hwcode
         self.dxcc_base = setup.dxcc_base
@@ -1085,7 +1083,7 @@ class dxcc(metaclass=LogBase):
             res = self.write32(0x10001088, 0x8000000)
         return res
 
-    def generate_itrustee_fbe(self, key_sz=32, appid:bytes=b""):
+    def generate_itrustee_fbe(self, key_sz=32, appid: bytes = b""):
         fdekey = b""
         dstaddr = self.da_payload_addr - 0x300
         self.tzcc_clk(1)
@@ -1127,15 +1125,15 @@ class dxcc(metaclass=LogBase):
 
     def salt_func(self, value):
         while True:
-            val=self.read32(self.dxcc_base+(0x2AF*4))&1
-            if val!=0:
+            val = self.read32(self.dxcc_base + (0x2AF * 4)) & 1
+            if val != 0:
                 break
-        self.write32(self.dxcc_base + (0x2A9*4),(4*value)|0x10000)
+        self.write32(self.dxcc_base + (0x2A9 * 4), (4 * value) | 0x10000)
         while True:
-            val=self.read32(self.dxcc_base+(0x2AD*4))<<31
-            if val!=0:
+            val = self.read32(self.dxcc_base + (0x2AD * 4)) << 31
+            if val != 0:
                 break
-        res=self.read32(self.dxcc_base+(0x2AB*4))
+        res = self.read32(self.dxcc_base + (0x2AB * 4))
         return res
 
     def generate_provision_key(self):
@@ -1264,7 +1262,7 @@ class dxcc(metaclass=LogBase):
         pdesc = hw_desc_set_din_const(pdesc, 0, AES_IV_COUNTER_SIZE_IN_BYTES)  # desc[1]=0x8000041
         pdesc = hw_desc_set_flow_mode(pdesc, FlowMode.S_DIN_to_AES)  # desc[4]=0x801C20
         pdesc = hw_desc_set_setup_mode(pdesc, SetupOp.SETUP_LOAD_STATE0)  # desc[4]=0x1801C20
-        #pdesc[1] |= 0x8000000 #
+        # pdesc[1] |= 0x8000000 #
         self.sasi_sb_adddescsequence(pdesc)
 
         # Load key
@@ -1322,7 +1320,7 @@ class dxcc(metaclass=LogBase):
         dataptr = destaddr + 0x40
         ivptr = destaddr + 0x20
         outptr = destaddr
-        self.writemem(0x1000108C, pack("<I",0x18000000))
+        self.writemem(0x1000108C, pack("<I", 0x18000000))
         iv = bytes.fromhex("19CDE05BABD9831F8C68059B7F520E513AF54FA572F36E3C85AE67BB67E6096A")
         self.writemem(ivptr, iv)
         self.writemem(dataptr, buffer)
@@ -1330,7 +1328,7 @@ class dxcc(metaclass=LogBase):
         self.sbrom_cryptoupdate(inputptr=dataptr, outputptr=outptr, blockSize=len(buffer), islastblock=1,
                                 cryptodrivermode=0, waitforcrypto=0)
         self.sbrom_cryptofinishdriver(outptr)
-        self.writemem(0x10001088, pack("<I",0x8000000))
+        self.writemem(0x10001088, pack("<I", 0x8000000))
         return 0
 
     def sbrom_cryptoinitdriver(self, aesivptr, cryptodrivermode):
@@ -1373,15 +1371,13 @@ class dxcc(metaclass=LogBase):
             mdesc2 = hw_desc_set_setup_mode(mdesc2, SetupOp.SETUP_LOAD_KEY0)
             mdesc2 = hw_desc_set_flow_mode(mdesc2, FlowMode.S_DIN_to_AES)
             mdesc2 = hw_desc_set_dout_dlli(mdesc2, 0, AES_BLOCK_SIZE_IN_BYTES, SB_AXI_ID,
-                                          0)
+                                           0)
             self.sasi_sb_adddescsequence(mdesc2)
-
-
 
     def sbrom_cryptoupdate(self, inputptr, outputptr, blockSize, islastblock, cryptodrivermode, waitforcrypto):
         if waitforcrypto == 2:
             if self.SB_HalWaitDescCompletion() == 1:
-                 return True
+                return True
         if islastblock == 1 and (cryptodrivermode & 0xFFFFFFFD) == 0:
             # 0=0
             # 1=0

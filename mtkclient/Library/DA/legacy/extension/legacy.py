@@ -2,7 +2,6 @@ import os
 import sys
 from struct import unpack, pack
 
-from mtkclient.Library.settings import hwparam
 from mtkclient.config.payloads import pathconfig
 from mtkclient.Library.error import ErrorHandler
 from mtkclient.Library.Hardware.hwcrypto import crypto_setup, hwcrypto
@@ -220,30 +219,30 @@ class legacyext(metaclass=LogBase):
         return None
 
     def generate_keys(self):
-        if self.config.hwcode in [0x2601,0x6572]:
+        if self.config.hwcode in [0x2601, 0x6572]:
             base = 0x11141000
-        elif self.config.hwcode==0x6261:
+        elif self.config.hwcode == 0x6261:
             base = 0x70000000
-        elif self.config.hwcode in [0x8172,0x8176]:
+        elif self.config.hwcode in [0x8172, 0x8176]:
             base = 0x122000
         else:
             base = 0x100000
-        data = b"".join([pack("<I", val) for val in self.readmem(0x111418EC, 0x20000 // 4)])
-        print(data.hex())
+        #data = b"".join([pack("<I", val) for val in self.readmem(0x111418EC, 0x20000 // 4)])
+        #print(data.hex())
         sys.stdout.flush()
         if self.config.meid is None:
             try:
-                data = b"".join([pack("<I", val) for val in self.readmem(base+0x8EC, 0x16 // 4)])
+                data = b"".join([pack("<I", val) for val in self.readmem(base + 0x8EC, 0x16 // 4)])
                 self.config.meid = data
                 self.config.set_meid(data)
-            except:
+            except Exception:
                 return
         if self.config.socid is None:
             try:
-                data = b"".join([pack("<I", val) for val in self.readmem(base+0x934, 0x20 // 4)])
+                data = b"".join([pack("<I", val) for val in self.readmem(base + 0x934, 0x20 // 4)])
                 self.config.socid = data
                 self.config.set_socid(data)
-            except:
+            except Exception:
                 return
         hwc = self.cryptosetup()
         retval = {}
@@ -360,5 +359,5 @@ class legacyext(metaclass=LogBase):
         self.config.hwparam.writesetting("hwcode", retval["hwcode"])
         return retval
 
-    def custom_read_reg(self, addr:int, length:int) -> bytes:
-        return self.custom_read(addr,length)
+    def custom_read_reg(self, addr: int, length: int) -> bytes:
+        return self.custom_read(addr, length)

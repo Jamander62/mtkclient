@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
-## Form generated from reading UI file 'main_guiarqDOg.ui'
-##
-## Created by: Qt User Interface Compiler version 6.4.0
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
-    QSize, Qt)
+                            QSize, Qt)
 from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (QAbstractScrollArea, QCheckBox, QFrame,
-    QGridLayout, QHBoxLayout, QLabel,
-    QLayout, QMenu, QMenuBar,
-    QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
-    QSizePolicy, QSpacerItem, QTabWidget, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget)
+                               QGridLayout, QHBoxLayout, QLabel,
+                               QLayout, QMenu, QMenuBar,
+                               QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
+                               QSizePolicy, QSpacerItem, QTabWidget, QTableWidget,
+                               QTableWidgetItem, QVBoxLayout, QWidget)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -101,7 +94,7 @@ class Ui_MainWindow(object):
         sizePolicy1.setHeightForWidth(self.readtitle.sizePolicy().hasHeightForWidth())
         self.readtitle.setSizePolicy(sizePolicy1)
         self.readtitle.setMinimumSize(QSize(0, 20))
-        self.readtitle.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.readtitle.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
 
         self.gridLayout_7.addWidget(self.readtitle, 0, 0, 1, 1)
 
@@ -144,7 +137,7 @@ class Ui_MainWindow(object):
         sizePolicy1.setHeightForWidth(self.writetitle.sizePolicy().hasHeightForWidth())
         self.writetitle.setSizePolicy(sizePolicy1)
         self.writetitle.setMinimumSize(QSize(0, 20))
-        self.writetitle.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.writetitle.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
 
         self.gridLayout_6.addWidget(self.writetitle, 0, 0, 1, 1)
 
@@ -203,7 +196,7 @@ class Ui_MainWindow(object):
         sizePolicy1.setHeightForWidth(self.erasetitle.sizePolicy().hasHeightForWidth())
         self.erasetitle.setSizePolicy(sizePolicy1)
         self.erasetitle.setMinimumSize(QSize(0, 20))
-        self.erasetitle.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.erasetitle.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
 
         self.gridLayout_5.addWidget(self.erasetitle, 0, 0, 1, 1)
 
@@ -248,7 +241,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
-
         self.gridLayout_4.addLayout(self.verticalLayout_2, 0, 0, 2, 1)
 
         self.verticalLayout_3 = QVBoxLayout()
@@ -277,7 +269,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addItem(self.verticalSpacer_2)
 
-
         self.gridLayout_4.addLayout(self.verticalLayout_3, 0, 1, 2, 1)
 
         self.verticalLayout_4 = QVBoxLayout()
@@ -301,7 +292,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer_3)
 
-
         self.gridLayout_4.addLayout(self.verticalLayout_4, 0, 2, 1, 1)
 
         self.verticalLayout_5 = QVBoxLayout()
@@ -315,7 +305,6 @@ class Ui_MainWindow(object):
         self.unlockbutton.setObjectName(u"unlockbutton")
 
         self.verticalLayout_5.addWidget(self.unlockbutton)
-
 
         self.gridLayout_4.addLayout(self.verticalLayout_5, 1, 2, 1, 1)
 
@@ -396,7 +385,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.logBox, 0, 0, 1, 2)
 
-
         self.gridLayout_3.addLayout(self.gridLayout, 0, 0, 1, 1)
 
         self.tabWidget.addTab(self.debugtab, "")
@@ -424,7 +412,6 @@ class Ui_MainWindow(object):
         self.fullProgress.setValue(0)
 
         self.Main.addWidget(self.fullProgress)
-
 
         self.gridLayout_8.addLayout(self.Main, 3, 0, 1, 1)
 
@@ -458,7 +445,7 @@ class Ui_MainWindow(object):
         self.initStepsImage.setFrameShape(QFrame.NoFrame)
         self.initStepsImage.setPixmap(QPixmap(u"images/initsteps.png"))
         self.initStepsImage.setScaledContents(True)
-        self.initStepsImage.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.initStepsImage.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.initStepsImage.setWordWrap(False)
         self.initStepsImage.setMargin(0)
 
@@ -467,7 +454,6 @@ class Ui_MainWindow(object):
         self.horizontalSpacer = QSpacerItem(5, 18, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         self.horizontalLayout_4.addItem(self.horizontalSpacer)
-
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
 
@@ -486,7 +472,7 @@ class Ui_MainWindow(object):
         self.label_2.setSizePolicy(sizePolicy5)
         self.label_2.setMinimumSize(QSize(195, 0))
         self.label_2.setMaximumSize(QSize(195, 16777215))
-        self.label_2.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.label_2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.label_2.setWordWrap(True)
         self.label_2.setMargin(5)
 
@@ -502,7 +488,7 @@ class Ui_MainWindow(object):
         self.label_3.setSizePolicy(sizePolicy5)
         self.label_3.setMinimumSize(QSize(195, 10))
         self.label_3.setMaximumSize(QSize(195, 16777215))
-        self.label_3.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.label_3.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.label_3.setWordWrap(True)
         self.label_3.setMargin(5)
 
@@ -519,7 +505,7 @@ class Ui_MainWindow(object):
         self.label_4.setMinimumSize(QSize(195, 0))
         self.label_4.setMaximumSize(QSize(195, 16777215))
         self.label_4.setScaledContents(False)
-        self.label_4.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.label_4.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.label_4.setWordWrap(True)
         self.label_4.setMargin(5)
 
@@ -528,7 +514,6 @@ class Ui_MainWindow(object):
         self.horizontalSpacer_5 = QSpacerItem(10, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_5)
-
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_3)
 
@@ -543,9 +528,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_5.addWidget(self.showdebugbtn)
 
-
         self.verticalLayout_6.addLayout(self.horizontalLayout_5)
-
 
         self.gridLayout_8.addWidget(self.connectInfo, 2, 0, 1, 1)
 
@@ -578,7 +561,7 @@ class Ui_MainWindow(object):
         self.logoPic.setMaximumSize(QSize(158, 158))
         self.logoPic.setPixmap(QPixmap(u"images/logo_256.png"))
         self.logoPic.setScaledContents(True)
-        self.logoPic.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.logoPic.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
 
         self.horizontalLayout.addWidget(self.logoPic)
 
@@ -589,9 +572,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.copyrightInfo)
 
-
         self.verticalLayout.addLayout(self.horizontalLayout)
-
 
         self.topInfo.addLayout(self.verticalLayout)
 
@@ -605,7 +586,7 @@ class Ui_MainWindow(object):
         sizePolicy7.setVerticalStretch(0)
         sizePolicy7.setHeightForWidth(self.phoneInfoTextbox.sizePolicy().hasHeightForWidth())
         self.phoneInfoTextbox.setSizePolicy(sizePolicy7)
-        self.phoneInfoTextbox.setAlignment(Qt.AlignRight|Qt.AlignTop|Qt.AlignTrailing)
+        self.phoneInfoTextbox.setAlignment(Qt.AlignRight | Qt.AlignTop | Qt.AlignTrailing)
         self.phoneInfoTextbox.setWordWrap(True)
 
         self.verticalLayout_7.addWidget(self.phoneInfoTextbox)
@@ -621,7 +602,7 @@ class Ui_MainWindow(object):
         self.phoneDebugInfoTextbox.setMaximumSize(QSize(16777215, 110))
         self.phoneDebugInfoTextbox.setStyleSheet(u"color:#888;")
         self.phoneDebugInfoTextbox.setTextFormat(Qt.PlainText)
-        self.phoneDebugInfoTextbox.setAlignment(Qt.AlignBottom|Qt.AlignRight|Qt.AlignTrailing)
+        self.phoneDebugInfoTextbox.setAlignment(Qt.AlignBottom | Qt.AlignRight | Qt.AlignTrailing)
 
         self.verticalLayout_7.addWidget(self.phoneDebugInfoTextbox)
 
@@ -642,13 +623,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.consettingsbtn)
 
-
         self.verticalLayout_7.addLayout(self.horizontalLayout_2)
 
         self.verticalSpacer_5 = QSpacerItem(20, 2, QSizePolicy.Minimum, QSizePolicy.Maximum)
 
         self.verticalLayout_7.addItem(self.verticalSpacer_5)
-
 
         self.topInfo.addLayout(self.verticalLayout_7)
 
@@ -679,7 +658,6 @@ class Ui_MainWindow(object):
 
         self.topInfo.addWidget(self.widget_3)
 
-
         self.gridLayout_8.addLayout(self.topInfo, 0, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -691,9 +669,9 @@ class Ui_MainWindow(object):
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         MainWindow.setMenuBar(self.menubar)
-#if QT_CONFIG(shortcut)
+        # if QT_CONFIG(shortcut)
         self.logoPic.setBuddy(self.logoPic)
-#endif // QT_CONFIG(shortcut)
+        # endif // QT_CONFIG(shortcut)
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menuFile.addAction(self.action_Quit)
@@ -702,8 +680,8 @@ class Ui_MainWindow(object):
 
         self.tabWidget.setCurrentIndex(5)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -730,15 +708,19 @@ class Ui_MainWindow(object):
         self.readtitle.setText(QCoreApplication.translate("MainWindow", u"Select partitions to read", None))
         self.readpartitionsbtn.setText(QCoreApplication.translate("MainWindow", u"Read partition(s)", None))
         self.readselectallcheckbox.setText(QCoreApplication.translate("MainWindow", u"Select all partitions", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.readtab), QCoreApplication.translate("MainWindow", u"Read partition(s)", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.readtab),
+                                  QCoreApplication.translate("MainWindow", u"Read partition(s)", None))
         self.writetitle.setText(QCoreApplication.translate("MainWindow", u"Select partitions to write", None))
         self.writepartbtn.setText(QCoreApplication.translate("MainWindow", u"Write partition(s)", None))
         self.writeselectfromdir.setText(QCoreApplication.translate("MainWindow", u"Select from directory", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.writetab), QCoreApplication.translate("MainWindow", u"Write partition(s)", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.writetab),
+                                  QCoreApplication.translate("MainWindow", u"Write partition(s)", None))
         self.erasetitle.setText(QCoreApplication.translate("MainWindow", u"Select partitions to erase", None))
         self.erasepartitionsbtn.setText(QCoreApplication.translate("MainWindow", u"Erase partition(s)", None))
-        self.eraseselectallpartitionscheckbox.setText(QCoreApplication.translate("MainWindow", u"Select all partitions", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.erasetab), QCoreApplication.translate("MainWindow", u"Erase partition(s)", None))
+        self.eraseselectallpartitionscheckbox.setText(
+            QCoreApplication.translate("MainWindow", u"Select all partitions", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.erasetab),
+                                  QCoreApplication.translate("MainWindow", u"Erase partition(s)", None))
         self.readflashbtn.setText(QCoreApplication.translate("MainWindow", u"Read flash", None))
         self.readpreloaderbtn.setText(QCoreApplication.translate("MainWindow", u"Read preloader", None))
         self.readboot2btn.setText(QCoreApplication.translate("MainWindow", u"Read boot2", None))
@@ -752,38 +734,49 @@ class Ui_MainWindow(object):
         self.eraserpmbbtn.setText(QCoreApplication.translate("MainWindow", u"Erase RPMB", None))
         self.lockbutton.setText(QCoreApplication.translate("MainWindow", u"Lock bootloader", None))
         self.unlockbutton.setText(QCoreApplication.translate("MainWindow", u"Unlock bootloader", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Flash Tools", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QCoreApplication.translate("MainWindow", u"Flash Tools", None))
         ___qtablewidgetitem = self.keytable.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Type", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Type", None))
         ___qtablewidgetitem1 = self.keytable.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None))
         ___qtablewidgetitem2 = self.keytable.verticalHeaderItem(0)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem3 = self.keytable.verticalHeaderItem(1)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem4 = self.keytable.verticalHeaderItem(2)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem5 = self.keytable.verticalHeaderItem(3)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem6 = self.keytable.verticalHeaderItem(4)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem7 = self.keytable.verticalHeaderItem(5)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         ___qtablewidgetitem8 = self.keytable.verticalHeaderItem(6)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("MainWindow", u"Neue Zeile", None))
         self.keystatuslabel.setText(QCoreApplication.translate("MainWindow", u"Ready.", None))
         self.generatekeybtn.setText(QCoreApplication.translate("MainWindow", u"Generate Keys", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.keytab), QCoreApplication.translate("MainWindow", u"Keys", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.debugtab), QCoreApplication.translate("MainWindow", u"Debug Log", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.keytab),
+                                  QCoreApplication.translate("MainWindow", u"Keys", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.debugtab),
+                                  QCoreApplication.translate("MainWindow", u"Debug Log", None))
         self.partProgressText.setText("")
         self.fullProgressText.setText("")
         self.initStepsImage.setText("")
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Step 1:</span></p><p>Power off the phone</p></body></html>", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Step 2:</span></p><p>Connect the USB cable, hold both volume buttons if needed</p></body></html>", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>No connection? Try shorting the test point to ground</p></body></html>", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow",
+                                                        u"<html><head/><body><p><span style=\" font-weight:600;\">Step 1:</span></p><p>Power off the phone</p></body></html>",
+                                                        None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow",
+                                                        u"<html><head/><body><p><span style=\" font-weight:600;\">Step 2:</span></p><p>Connect the USB cable, hold both volume buttons if needed</p></body></html>",
+                                                        None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow",
+                                                        u"<html><head/><body><p>No connection? Try shorting the test point to ground</p></body></html>",
+                                                        None))
         self.showdebugbtn.setText(QCoreApplication.translate("MainWindow", u"Show Debug Log", None))
         self.logoPic.setText("")
-        self.copyrightInfo.setText(QCoreApplication.translate("MainWindow", u"<b>Made by:</b> Bjoern Kerler<br/><b>GUI by:</b> Geert-Jan Kreileman<br/><br/><b>Credits:</b><br/>kamakiri [xyzz]<br/>linecode exploit [chimera]<br/>Chaosmaster<br/>and all contributors</p>", None))
+        self.copyrightInfo.setText(QCoreApplication.translate("MainWindow",
+                                                              u"<b>Made by:</b> Bjoern Kerler<br/><b>GUI by:</b> Geert-Jan Kreileman<br/><br/><b>Credits:</b><br/>kamakiri [xyzz]<br/>linecode exploit [chimera]<br/>Chaosmaster<br/>and all contributors</p>",
+                                                              None))
         self.phoneInfoTextbox.setText(QCoreApplication.translate("MainWindow", u"No phone detected.", None))
         self.phoneDebugInfoTextbox.setText("")
         self.consettingsbtn.setText(QCoreApplication.translate("MainWindow", u"Connection settings", None))
@@ -791,4 +784,3 @@ class Ui_MainWindow(object):
         self.spinner_pic.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"&File", None))
     # retranslateUi
-

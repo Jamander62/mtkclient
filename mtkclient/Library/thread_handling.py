@@ -1,6 +1,3 @@
-from queue import Queue
-from threading import Thread
-
 def writedata(filename, rq):
     pos = 0
     with open(filename, "wb") as wf:

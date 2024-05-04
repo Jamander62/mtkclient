@@ -55,12 +55,12 @@ class ArgHandler(metaclass=LogBase):
         try:
             if args.payload is not None:
                 config.payloadfile = args.payload
-        except:
+        except Exception:
             pass
         try:
             if args.appid is not None:
                 config.appid = bytes.fromhex(args.appid)
-        except:
+        except Exception:
             pass
         try:
             if args.loader is not None:
@@ -134,21 +134,21 @@ class ArgHandler(metaclass=LogBase):
         try:
             if args.gpt_num_part_entries is not None:
                 gpt_num_part_entries = args.gpt_num_part_entries
-        except:
+        except Exception:
             pass
 
         gpt_part_entry_size = 0
         try:
             if args.gpt_part_entry_size is not None:
                 gpt_part_entry_size = args.gpt_part_entry_size
-        except:
+        except Exception:
             pass
 
         gpt_part_entry_start_lba = 0
         try:
             if args.gpt_part_entry_start_lba is not None:
                 gpt_part_entry_start_lba = args.gpt_part_entry_start_lba
-        except:
+        except Exception:
             pass
 
         config.gpt_settings = gpt_settings(gpt_num_part_entries, gpt_part_entry_size,
@@ -342,7 +342,7 @@ class Main(metaclass=LogBase):
             else:
                 loglevel = logging.INFO
                 self.__logger.setLevel(logging.INFO)
-        except:
+        except Exception:
             loglevel = logging.INFO
             self.__logger.setLevel(logging.INFO)
             pass
@@ -352,22 +352,22 @@ class Main(metaclass=LogBase):
         serialport = None
         try:
             serialport = self.args.serialport
-        except:
+        except Exception:
             pass
         try:
             iot = self.args.iot
             config.iot = iot
-        except:
+        except Exception:
             pass
         try:
             auth = self.args.auth
             config.auth = auth
-        except:
+        except Exception:
             pass
         try:
             cert = self.args.cert
             config.cert = cert
-        except:
+        except Exception:
             pass
         mtk = Mtk(config=config, loglevel=loglevel, serialportname=serialport)
         config.set_peek(mtk.daloader.peek)
@@ -390,7 +390,7 @@ class Main(metaclass=LogBase):
             # DA / FLash commands start here
             try:
                 preloader = self.args.preloader
-            except:
+            except Exception:
                 preloader = None
             da_handler = DA_handler(mtk, loglevel)
             mtk = da_handler.configure_da(mtk, preloader)
@@ -535,7 +535,7 @@ class Main(metaclass=LogBase):
                         else:
                             mtk.port.close()
                             time.sleep(3)
-                            self.info(f"Keep pressed power button to boot.")
+                            self.info("Keep pressed power button to boot.")
                             self.close()
                             return
 
@@ -646,7 +646,7 @@ class Main(metaclass=LogBase):
             # DA / FLash commands start here
             try:
                 preloader = self.args.preloader
-            except:
+            except Exception:
                 preloader = None
             da_handler = DA_handler(mtk, loglevel)
             mtk = da_handler.configure_da(mtk, preloader)
@@ -660,7 +660,7 @@ class Main(metaclass=LogBase):
             self.info("Getting target logs...")
             try:
                 logs = mtk.preloader.get_brom_log_new()
-            except:
+            except Exception:
                 logs = mtk.preloader.get_brom_log()
             if logs != b"":
                 with open(filename, "wb") as wf:

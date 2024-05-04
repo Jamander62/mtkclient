@@ -12,8 +12,9 @@ from binascii import hexlify
 
 try:
     from mtkclient.Library.utils import LogBase, structhelper
-except:
+except Exception:
     from utils import LogBase, structhelper
+
 
 class gpt_settings:
     gpt_num_part_entries = 0
@@ -24,6 +25,7 @@ class gpt_settings:
         self.gpt_num_part_entries = int(gpt_num_part_entries)
         self.gpt_part_entry_size = int(gpt_part_entry_size)
         self.gpt_part_entry_start_lba = int(gpt_part_entry_start_lba)
+
 
 class gpt(metaclass=LogBase):
     class gpt_header:
@@ -70,7 +72,7 @@ class gpt(metaclass=LogBase):
         EFI_STORAGE_SPACES = 0xE75CAF8F
         EFI_HPUX_DATA = 0x75894C1E
         EFI_HPUX_SERVICE = 0xE2A1E728
-        EFI_LINUX_DAYA = 0x0FC63DAF
+        EFI_LINUX_DATA = 0x0FC63DAF
         EFI_LINUX_RAID = 0xA19D880F
         EFI_LINUX_ROOT32 = 0x44479540
         EFI_LINUX_ROOT64 = 0x4F68BCE3
@@ -172,24 +174,25 @@ class gpt(metaclass=LogBase):
             type = b""
             name = ""
             entryoffset = 0
+
         self.sectorsize = pagesize
         self.totalsectors = 0
         self.partentries = []
-        for pos in range(0x800,len(gptdata),0x80):
-            data = gptdata[pos:pos+0x80]
+        for pos in range(0x800, len(gptdata), 0x80):
+            data = gptdata[pos:pos + 0x80]
             if int(hexlify(data[16:32]), 16) == 0:
                 break
 
             rf = BytesIO(bytearray(data))
             pf = partf()
             rf.read(16)
-            guid1 = int.from_bytes(rf.read(4),'little')
-            guid2 = int.from_bytes(rf.read(2),'little')
-            guid3 = int.from_bytes(rf.read(2),'little')
-            guid4 = int.from_bytes(rf.read(2),'little')
+            guid1 = int.from_bytes(rf.read(4), 'little')
+            guid2 = int.from_bytes(rf.read(2), 'little')
+            guid3 = int.from_bytes(rf.read(2), 'little')
+            guid4 = int.from_bytes(rf.read(2), 'little')
             guid5 = bytearray(rf.read(6)).hex()
             pf.unique = "{:08x}-{:04x}-{:04x}-{:04x}-{}".format(guid1, guid2, guid3, guid4, guid5)
-            pf.first_lba = int.from_bytes(rf.read(8),'little')
+            pf.first_lba = int.from_bytes(rf.read(8), 'little')
             pf.last_lba = int.from_bytes(rf.read(8), 'little')
             pf.sector = pf.first_lba
             pf.sectors = pf.last_lba - pf.first_lba + 1
@@ -200,12 +203,11 @@ class gpt(metaclass=LogBase):
                 self.totalsectors = pf.last_lba
             self.partentries.append(pf)
 
-
     def parse(self, gptdata, sectorsize=512):
         self.header = self.gpt_header(gptdata[sectorsize:sectorsize + 0x5C])
         self.sectorsize = sectorsize
         if self.header.signature != b"EFI PART":
-            if gptdata[0:4]==b"BPI\x00":
+            if gptdata[0:4] == b"BPI\x00":
                 self.parse_bpi(gptdata)
                 return True
             return False
@@ -250,7 +252,7 @@ class gpt(metaclass=LogBase):
             type = int(unpack("<I", partentry.type[0:0x4])[0])
             try:
                 pa.type = self.efi_type(type).name
-            except:
+            except Exception:
                 pa.type = hex(type)
             pa.name = partentry.name.replace(b"\x00\x00", b"").decode('utf-16')
             if pa.type == "EFI_UNUSED":
@@ -296,22 +298,22 @@ class gpt(metaclass=LogBase):
             partofsingleimage = "true"
             sectors = self.header.first_usable_lba
             mstr += f"\t<program SECTOR_SIZE_IN_BYTES=\"{sectorsize}\" " + \
-                    f"file_sector_offset=\"0\" " + \
+                    "file_sector_offset=\"0\" " + \
                     f"filename=\"gpt_lun{str(lun)}.bin\" " + \
-                    f"label=\"PrimaryGPT\" " + \
+                    "label=\"PrimaryGPT\" " + \
                     f"num_partition_sectors=\"{sectors}\" " + \
                     f"partofsingleimage=\"{partofsingleimage}\" " + \
                     f"physical_partition_number=\"{str(lun)}\" " + \
                     f"readbackverify=\"{readbackverify}\" " + \
                     f"size_in_KB=\"{(sectors * sectorsize / 1024):.1f}\" " + \
                     f"sparse=\"{sparse}\" " + \
-                    f"start_byte_hex=\"0x0\" " + \
-                    f"start_sector=\"0\"/>\n"
+                    "start_byte_hex=\"0x0\" " + \
+                    "start_sector=\"0\"/>\n"
             sectors = self.header.first_usable_lba - 1
             mstr += f"\t<program SECTOR_SIZE_IN_BYTES=\"{sectorsize}\" " + \
-                    f"file_sector_offset=\"0\" " + \
+                    "file_sector_offset=\"0\" " + \
                     f"filename=\"gpt_backup{str(lun)}.bin\" " + \
-                    f"label=\"BackupGPT\" " + \
+                    "label=\"BackupGPT\" " + \
                     f"num_partition_sectors=\"{sectors}\" " + \
                     f"partofsingleimage=\"{partofsingleimage}\" " + \
                     f"physical_partition_number=\"{str(lun)}\" " + \
@@ -405,7 +407,7 @@ if __name__ == "__main__":
                     with open(filename, "wb", buffering=1024 * 1024) as wf:
                         while bytestoread > 0:
                             size = min(bytestoread, 0x200000)
-                            data=rf.read(size)
+                            data = rf.read(size)
                             wf.write(data)
                             bytestoread -= size
                     print(f"Extracting {name} to {filename} at {hex(start)}, length {hex(length)}")
